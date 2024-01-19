@@ -56,9 +56,11 @@ III. The URL and request type should be set according to the route/api endpoint 
 
 IV. In "Body", select "raw" and navigate to the dropdown menu on the right to select "JSON"
 
-V. To begin, it'd be wise to create an instance of a model (or more) to test if you can update it, delete it, access it, etc.
+V. To begin, it'd be wise to create an instance of a model (or more) to test if you can then successfully login that user.
 
-VI. !!!! Authorization stuff here !!!!
+VI. Copy token and try to update/delete user without authorization.
+
+VII. Paste token under Authorization with type Bearer Token then try to update/delete user.
 
 ----
 

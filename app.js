@@ -6,5 +6,6 @@ const app = express()
 app.use(express.json())
 app.use(morgan('combined'))
 app.use('/users', userRoutes)
+app.use('/playlists', playlistRoutes)
 
 module.exports = app

@@ -67,3 +67,4 @@ describe('Test suite for the /users routes on our api', () => {
       .set('Authorization', `Bearer ${token}`)
   })
 })
+

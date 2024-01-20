@@ -28,13 +28,13 @@ APP INSTALLATION INSTRUCTIONS:
 
 3. Run npm init -y in repository
 
-4. Install dependencies: npm install express mongoose dotenv morgan jsonwebtoken bcrypt
+4. Create .gitignore and .env files
 
-5. Install dev dependencies: npm install jest supertest mongodb-memory-server nodemon --save-dev
+5. Add node_modules/ and .env to .gitignore files
 
-6. Create .gitignore and .env files
+6. Install dependencies: npm install express mongoose dotenv morgan jsonwebtoken bcrypt
 
-7. Add node_modules/ and .env to .gitignore files
+7. Install dev dependencies: npm install jest supertest mongodb-memory-server nodemon --save-dev
 
 8. Insert Mongo URI in .env with desired database name
 

@@ -19,8 +19,8 @@ exports.showPlaylist = async (req, res) => {
 
 exports.createPlaylist = async (req, res) => {
   try {
-    const playlist = new Playlist(req.body)
-    await playlist.save()
+    req.body.user = req.user._id
+    const playlist = await Playlist.create(req.body)
     res.json(playlist)
   } catch (error) {
     res.status(400).json({ message: error.message })

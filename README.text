@@ -20,7 +20,7 @@ USER STORIES:
 
 APP INSTALLATION INSTRUCTIONS:
 
-*** Global installation needed: Node.js ***
+*** Global installations needed: node.js mongodb ***
 
 1. Make new directory for project
 
@@ -32,9 +32,9 @@ APP INSTALLATION INSTRUCTIONS:
 
 5. Add node_modules/ and .env to .gitignore files
 
-6. Install dependencies: npm install express mongoose dotenv morgan jsonwebtoken bcrypt
+6. Install dependencies: npm install express mongoose dotenv jsonwebtoken bcrypt
 
-7. Install dev dependencies: npm install jest supertest mongodb-memory-server nodemon --save-dev
+7. Install dev dependencies: npm install jest supertest mongodb-memory-server nodemon morgan --save-dev
 
 8. Insert Mongo URI in .env with desired database name
 

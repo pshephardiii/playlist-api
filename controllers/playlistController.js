@@ -3,7 +3,7 @@ const Playlist = require('../models/playlist')
 exports.indexPlaylists = async (req, res) => {
   try {
     const playlists = await Playlist.find({})
-    res.json(playlists)
+    res.status(200).json(playlists)
   } catch (error) {
     res.status(400).json({ message: error.message })
   }
@@ -12,6 +12,7 @@ exports.indexPlaylists = async (req, res) => {
 exports.showPlaylist = async (req, res) => {
   try {
     const playlist = await Playlist.findOne({ _id: req.params.id })
+    res.status(200).json(playlist)
   } catch (error) {
     res.status(400).json({ message: error.message })
   }
@@ -21,7 +22,7 @@ exports.createPlaylist = async (req, res) => {
   try {
     req.body.user = req.user._id
     const playlist = await Playlist.create(req.body)
-    res.json(playlist)
+    res.status(200).json(playlist)
   } catch (error) {
     res.status(400).json({ message: error.message })
   }
@@ -30,7 +31,7 @@ exports.createPlaylist = async (req, res) => {
 exports.updatePlaylist = async (req, res) => {
   try {
     const playlist = await Playlist.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true })
-    res.json(playlist)
+    res.status(200).json(playlist)
   } catch (error) {
     res.status(400).json({ message: error.message })
   }

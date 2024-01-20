@@ -22,7 +22,7 @@ exports.createUser = async (req, res) => {
     const user = new User(req.body)
     await user.save()
     const token = await user.generateAuthToken()
-    res.json({ user, token })
+    res.status(200).json({ user, token })
   } catch(error){
     res.status(400).json({ message: error.message })
   }
@@ -35,7 +35,7 @@ exports.loginUser = async (req, res) => {
       res.status(400).send('Invalid login credentials')
     } else {
       const token = await user.generateAuthToken()
-      res.json({ user, token })
+      res.status(200).json({ user, token })
     }
   } catch(error){
     res.status(400).json({ message: error.message })
@@ -48,7 +48,7 @@ exports.updateUser = async (req, res) => {
     const user = await User.findOne({ _id: req.params.id })
     updates.forEach(update => user[update] = req.body[update])
     await user.save()
-    res.json(user)
+    res.status(200).json(user)
   }catch(error){
     res.status(400).json({ message: error.message })
   }
@@ -58,7 +58,7 @@ exports.updateUser = async (req, res) => {
 exports.deleteUser = async (req, res) => {
   try{
     await req.user.deleteOne()
-    res.json({ message: 'User deleted' })
+    res.status(200).json({ message: 'User deleted' })
   }catch(error){
     res.status(400).json({ message: error.message })
   }

@@ -1,4 +1,6 @@
 const Playlist = require('../models/playlist')
+const User = require('../models/user')
+
 
 exports.indexPlaylists = async (req, res) => {
   try {
@@ -17,6 +19,8 @@ exports.showPlaylist = async (req, res) => {
     res.status(400).json({ message: error.message })
   }
 }
+
+// think about how to add playlist to user playlists array
 
 exports.createPlaylist = async (req, res) => {
   try {

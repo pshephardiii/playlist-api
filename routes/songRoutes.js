@@ -5,13 +5,17 @@ const songController = require('../controllers/songController')
 
 // I'll need to figure out how to index songs based on artist and album
 // I'll need to figure out how to add and delete songs from playlists
+// PROBLEM: keeps thinking it's artist
 
 router.get('/', songController.indexAllSongs)
-router.get('/:artist', songController.indexSongsByArtist)
-router.get('/:album', songController.indexByAlbumTitle)
-router.get('/:artist/:album', songController.indexSongsByArtistAndAlbum)
-router.get('/:genre', songController.indexSongsByGenre)
-router.get('/:title', songController.indexSongsByTitle)
+router.get('/title/:title', songController.indexSongsByTitle)
+router.get('/artists/:artist', songController.indexSongsByArtist)
+router.get('/albums/:album', songController.indexSongsByAlbumTitle)
+
+// need to figure out:
+// router.get('artist/albums/:artist/:album', songController.indexSongsByArtistAndAlbum)
+
+router.get('/genre/:genre', songController.indexSongsByGenre)
 router.get('/:id', songController.showSong)
 
 module.exports = router

@@ -44,7 +44,7 @@ exports.updatePlaylist = async (req, res) => {
 exports.deletePlaylist = async (req, res) => {
   try {
     await Playlist.findOneAndDelete({ _id: req.params.id })
-    res.status(204).json({ message: 'Playlist deleted' })
+    res.status(200).json({ message: `Playlist ${req.params.id} deleted` })
   } catch (error) {
     res.status(400).json({ message: error.message })
   }

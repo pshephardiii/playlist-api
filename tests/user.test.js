@@ -65,6 +65,9 @@ describe('Test suite for the /users routes on our api', () => {
     const response = await request(app)
       .delete(`/users/${user._id}`)
       .set('Authorization', `Bearer ${token}`)
+
+    expect(response.statusCode).toBe(200)
+    expect(response.body.message).toEqual('User deleted')
   })
 })
 

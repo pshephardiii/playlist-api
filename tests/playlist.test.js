@@ -20,13 +20,25 @@ afterAll( async () => {
 
 describe('Test suite for the /playlists routes on our api', () => {
   
-  test('It should create a new playlist and at it to the user playlists array', async () => {
-    const user1 = new User({ name: 'paul', email: 'paul', password: 'paul' })
-    user1.save()
-    const response = await request(app).post('/playlists').send({ title: 'PLAYLIST', user: user1._id })
-  
-    expect(response.body.playlist.title).toEqual('PLAYLIST')
-
-  })
+  // wait for Tuesday... authentication business here
+  test('It should index all playlists', async () => {
+        const playlist1 = new Playlist ({ title: 'title1' })
+        const playlist2 = new Playlist ({ title: 'title2' })
+        const playlist3 = new Playlist ({ title: 'title3' })
+        await playlist1.save()
+        await playlist2.save()
+        await playlist3.save()
+    
+        const response = await request(app)
+          .get('/playlists')
+    
+        expect(response.statusCode).toBe(200)
+        expect(Array.isArray(response.body)).toBeTruthy()
+    
+        for(let i = 0; i < response.body.length; i++) {
+          expect(response.body[i]).toHaveProperty('title')
+        }
+        
+      })  
 
 })

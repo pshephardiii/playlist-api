@@ -25,8 +25,11 @@ exports.showPlaylist = async (req, res) => {
 exports.createPlaylist = async (req, res) => {
   try {
     req.body.user = req.user._id
+    const foundUser = await User.findOne({ _id: req.user._id })
     const playlist = await Playlist.create(req.body)
-    res.status(200).json(playlist)
+    foundUser.playlists.push(playlist._id)
+    await foundUser.save()
+    res.status(200).json({ playlist, foundUser })
   } catch (error) {
     res.status(400).json({ message: error.message })
   }

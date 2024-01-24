@@ -55,8 +55,9 @@ describe('Test suite for the /playlists routes on our api', () => {
         .set('Authorization', `Bearer ${token}`)
 
       expect(response.statusCode).toBe(200)
-      expect(response.body.title).toEqual('Bangers Only')
-      expect(response.body.user).toEqual(`${user._id}`)
+      expect(response.body.playlist.title).toEqual('Bangers Only')
+      expect(response.body.playlist.user).toEqual(`${user._id}`)
+      expect(response.body.foundUser.playlists).toContain(response.body.playlist._id)
     })
 
     // update test when playlist can be shared with multiple users

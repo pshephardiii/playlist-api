@@ -36,16 +36,14 @@ exports.indexSongsByArtist = async (req, res) => {
     }
   }
 
-//   Need to figure out
-
-//   exports.indexSongsByArtistAndAlbum = async (req, res) => {
-//     try {
-//       const songs = await Song.find({ artist: req.params.artist, album: req.params.album })
-//       res.status(200).json(songs) 
-//     } catch (error) {
-//       res.status(400).json({ message: error.message })    
-//     }
-//   }
+  exports.indexSongsByArtistAndAlbum = async (req, res) => {
+    try {
+      const songs = await Song.find({ artist: req.params.artist, album: req.params.album })
+      res.status(200).json(songs) 
+    } catch (error) {
+      res.status(400).json({ message: error.message })    
+    }
+  }
 
   exports.indexSongsByGenre = async (req, res) => {
     try {
@@ -66,8 +64,4 @@ exports.indexSongsByArtist = async (req, res) => {
       res.status(400).json({ message: error.message })
     }
   }
-
-// use find({ condition }) to index songs based on artist, album, title, genre, etc.
-// need to be able to add to playlist and take off playlist... wait until Tuesday lesson for this
-// idea: maybe sort based on popularity? Like number of listens... figure this out if time
 

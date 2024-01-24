@@ -11,17 +11,6 @@ exports.indexPlaylists = async (req, res) => {
   }
 }
 
-exports.showPlaylist = async (req, res) => {
-  try {
-    const playlist = await Playlist.findOne({ _id: req.params.id })
-    res.status(200).json(playlist)
-  } catch (error) {
-    res.status(400).json({ message: error.message })
-  }
-}
-
-// think about how to add playlist to user playlists array
-
 exports.createPlaylist = async (req, res) => {
   try {
     req.body.user = req.user._id
@@ -32,6 +21,26 @@ exports.createPlaylist = async (req, res) => {
     res.status(200).json({ playlist, foundUser })
   } catch (error) {
     res.status(400).json({ message: error.message })
+  }
+}
+
+// update function
+
+exports.addSong = async (req, res) => {
+  try {
+    
+  } catch (error) {
+    
+  }
+}
+
+// update function
+
+exports.removeSong = async (req, res) => {
+  try {
+    
+  } catch (error) {
+    
   }
 }
 
@@ -52,3 +61,12 @@ exports.deletePlaylist = async (req, res) => {
     res.status(400).json({ message: error.message })
   }
 }
+
+exports.showPlaylist = async (req, res) => {
+    try {
+      const playlist = await Playlist.findOne({ _id: req.params.id })
+      res.status(200).json(playlist)
+    } catch (error) {
+      res.status(400).json({ message: error.message })
+    }
+  }

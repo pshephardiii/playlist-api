@@ -10,10 +10,7 @@ router.get('/', songController.indexAllSongs)
 router.get('/title/:title', songController.indexSongsByTitle)
 router.get('/artists/:artist', songController.indexSongsByArtist)
 router.get('/albums/:album', songController.indexSongsByAlbumTitle)
-
-// need to figure out:
-// router.get('artist/albums/:artist/:album', songController.indexSongsByArtistAndAlbum)
-
+router.get('/artists/:artist/albums/:album', songController.indexSongsByArtistAndAlbum)
 router.get('/genre/:genre', songController.indexSongsByGenre)
 router.get('/:id', songController.showSong)
 

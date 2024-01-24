@@ -98,6 +98,25 @@ describe('Test suite for the /songs routes on our api', () => {
     }
   })
 
+  test('It should index songs based on artist and album', async () => {
+    const song1 = new Song ({ title: 'title1', artist: 'artist1', album: 'album1', genre: 'genre1' })
+    const song2 = new Song ({ title: 'title2', artist: 'artist1', album: 'album1', genre: 'genre2' })
+    const song3 = new Song ({ title: 'title3', artist: 'artist3', album: 'album3', genre: 'genre3' })
+
+    const response = await request(app)
+      .get('/songs/artists/artist1/albums/album1')
+
+    expect(response.statusCode).toBe(200)
+    expect(Array.isArray(response.body)).toBeTruthy()
+
+    for(let i = 0; i < response.body.length; i++) {
+        expect(response.body[i]).toHaveProperty('title')
+        expect(response.body[i].artist).toEqual('artist1')
+        expect(response.body[i].album).toEqual('album1')
+        expect(response.body[i]).toHaveProperty('genre')
+      }
+  })
+
   test('It should index songs based on genre', async () => {
     const song1 = new Song ({ title: 'title1', artist: 'artist1', album: 'album1', genre: 'genre1' })
     const song2 = new Song ({ title: 'title2', artist: 'artist2', album: 'album2', genre: 'genre1' })

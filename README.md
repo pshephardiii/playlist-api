@@ -6,9 +6,9 @@ USER STORIES:
 
 (b) "As a user, I should be able to browse available songs and add them to a desired playlist upon click."
 
-(c) "As a user, I should land on a welcome page after logging in that has navigation links to saved playlists and songs based on artist, album, year, or genre."
+(c) "As a user, I should land on a welcome page after logging in that has navigation links to saved playlists and search for songs based on artist, album, year, or genre."
 
-(d) "As a user, I should be able to update playlists by editing the order of the songs, deleting songs, or adding new songs."
+(d) "As a user, I should be able to update playlists by editing the order of the songs, removing songs, or adding new songs."
 
 (e) "As a user, I should be able to click on a song and land on a page that provides song information (like artist and album) and tools for playing that song (play, pause, volume control, etc.)."
 

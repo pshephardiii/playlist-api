@@ -1,6 +1,7 @@
 const Playlist = require('../models/playlist')
 const Song = require('../models/song')
 const User = require('../models/user')
+const Comment = require('../models/comment')
 
 exports.indexPlaylists = async (req, res) => {
   try {
@@ -83,6 +84,27 @@ exports.clonePlaylist = async (req, res) => {
       res.status(400).json({ message: error.message })
     }
   }
+
+exports.leaveComment = async (req, res) => {
+  try {
+    const commentingUser = await User.findOne({ _id: req.body.userId })
+    const foundPlaylist = await Playlist.findOne({ _id: req.body.playlistId })
+    const newComment = new Comment({ body: req.body.commentBody, user: req.body.userId, playlist: req.body.playlistId })
+    foundPlaylist.comments.push(newComment._id)
+    newComment.playlist = foundPlaylist._id
+    commentingUser.comments.push(newComment._id)
+    await newComment.save()
+    await foundPlaylist.save()
+    await commentingUser.save()
+    res.status(200).json({
+        newComment: newComment,
+        foundPlaylist: foundPlaylist,
+        commentingUser: commentingUser
+    })
+  } catch (error) {
+    res.status(400).json({ message: error.message })
+  }
+}
 
 exports.updatePlaylist = async (req, res) => {
   try {

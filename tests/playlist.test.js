@@ -5,6 +5,7 @@ const User = require('../models/user')
 const Playlist = require('../models/playlist')
 const mongoose = require('mongoose')
 const Song = require('../models/song')
+const Comment = require('../models/comment')
 const server = app.listen(3001, () => console.log('Testing on Port 3001'))
 let mongoServer 
 
@@ -133,6 +134,32 @@ describe('Test suite for the /playlists routes on our api', () => {
       expect(response.body.existingPlaylist.cloned).toContain(`${user2._id}`)
       expect(response.body.cloningUser.playlists).not.toContain(`${playlist._id}`)
       expect(response.body.cloningUser.playlists).toContain(`${newPlaylist._id}`)
+    })
+
+    test('it should create a new comment on a playlist and add IDs into arrays on Comment, User, and Playlist', async () => {
+      const user = new User({ name: 'Paul', email: 'paul@funtimes.fun', password: 'paulpaulpaul' })
+      const playlist = new Playlist({ title: 'Bangers Only' })
+      const token = await user.generateAuthToken()
+      await user.save()
+      await playlist.save()
+
+      const response = await request(app)
+        .post(`/playlists/${playlist._id}/comment`)
+        .send({
+            userId: user._id,
+            playlistId: playlist._id,
+            commentBody: 'what a great playlist!'
+        })
+        .set('Authorization', `Bearer ${token}`)
+
+      let commentId = response.body.newComment._id 
+      
+      expect(response.statusCode).toBe(200)
+      expect(response.body.newComment.user).toEqual(`${user._id}`)
+      expect(response.body.newComment.playlist).toEqual(`${playlist._id}`)
+      expect(response.body.commentingUser.comments).toContain(commentId)
+      expect(response.body.foundPlaylist.comments).toContain(commentId)
+      expect(response.body.newComment.body).toEqual('what a great playlist!')
     })
 
     // update test when playlist can be shared with multiple users

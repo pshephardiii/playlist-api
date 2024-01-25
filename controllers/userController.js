@@ -17,6 +17,15 @@ exports.auth = async (req, res, next) => {
   }
 }
 
+exports.indexUsers = async (req, res) => {
+  try{
+    const foundUsers = await User.find({})
+    res.status(200).json(foundUsers)
+  } catch(error){
+    res.status(400).json({ message: error.message })
+  }
+}
+
 exports.createUser = async (req, res) => {
   try{
     const user = new User(req.body)
@@ -90,7 +99,6 @@ exports.updateUser = async (req, res) => {
   }catch(error){
     res.status(400).json({ message: error.message })
   }
-  
 }
 
 exports.deleteUser = async (req, res) => {
@@ -98,6 +106,15 @@ exports.deleteUser = async (req, res) => {
     await req.user.deleteOne()
     res.status(200).json({ message: 'User deleted' })
   }catch(error){
+    res.status(400).json({ message: error.message })
+  }
+}
+
+exports.showUser = async (req, res) => {
+  try {
+    const foundUser = await User.findOne({ _id: req.params.id })
+    res.status(200).json(foundUser)
+  } catch (error) {
     res.status(400).json({ message: error.message })
   }
 }

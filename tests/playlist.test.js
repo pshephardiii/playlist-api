@@ -71,7 +71,7 @@ describe('Test suite for the /playlists routes on our api', () => {
       await song1.save()
 
       const response = await request(app)
-        .post(`/playlists/${playlist1._id}/songs/${song1._id}`)
+        .post(`/playlists/${playlist1._id}/add/songs/${song1._id}`)
         .set('Authorization', `Bearer ${token}`)
     
       expect(response.statusCode).toBe(200)
@@ -124,15 +124,15 @@ describe('Test suite for the /playlists routes on our api', () => {
         .post(`/playlists/${playlist._id}/clone/${user2._id}`)
         .set('Authorization', `Bearer ${token2}`)
 
-      let newPlaylist = response.body.playlist2  
+      let newPlaylist = response.body.clonePlaylist  
       expect(response.statusCode).toBe(200)
-      expect(response.body.playlist2.user).toEqual(`${user2._id}`)
-      expect(response.body.playlist2.songs).toContain(`${song._id}`)
-      expect(response.body.playlist1.songs).toContain(`${song._id}`)
-      expect(response.body.playlist1.user).toEqual(`${user1._id}`)
-      expect(response.body.playlist1.cloned).toContain(`${user2._id}`)
-      expect(response.body.user.playlists).not.toContain(`${playlist._id}`)
-      expect(response.body.user.playlists).toContain(`${newPlaylist._id}`)
+      expect(response.body.clonePlaylist.user).toEqual(`${user2._id}`)
+      expect(response.body.clonePlaylist.songs).toContain(`${song._id}`)
+      expect(response.body.existingPlaylist.songs).toContain(`${song._id}`)
+      expect(response.body.existingPlaylist.user).toEqual(`${user1._id}`)
+      expect(response.body.existingPlaylist.cloned).toContain(`${user2._id}`)
+      expect(response.body.cloningUser.playlists).not.toContain(`${playlist._id}`)
+      expect(response.body.cloningUser.playlists).toContain(`${newPlaylist._id}`)
     })
 
     // update test when playlist can be shared with multiple users

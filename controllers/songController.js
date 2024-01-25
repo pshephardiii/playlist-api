@@ -54,8 +54,6 @@ exports.indexSongsByArtist = async (req, res) => {
     }
   }
 
-
-
   exports.showSong = async (req, res) => {
     try {
       const song = await Song.findOne({ _id: req.params.id })

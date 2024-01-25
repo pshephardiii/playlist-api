@@ -18,6 +18,29 @@ afterAll( async () => {
 })
 
 describe('Test suite for the /users routes on our api', () => {
+
+  test('It should index all users', async () => {
+    const user1 = new User ({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaul' })
+    const user2 = new User ({ name: 'Paul', email: 'paul@joe.joe', password: 'paulpaul' })
+    const user3 = new User ({ name: 'Paul', email: 'paul@len.len', password: 'paulpaul' })
+    const token = await user1.generateAuthToken()
+    await user1.save()
+    await user2.save()
+    await user3.save()
+
+    const response = await request(app)
+      .get('/users')
+      .set('Authorization', `Bearer ${token}`)
+
+    expect(response.statusCode).toBe(200)
+    expect(Array.isArray(response.body)).toBeTruthy()
+
+    for(let i = 0; i < response.body.length; i++) {
+        expect(response.body[i]).toHaveProperty('name')
+        expect(response.body[i]).toHaveProperty('email')
+        expect(response.body[i]).toHaveProperty('password')
+      }
+  })
   
   test('It should create a new user in the database', async () => {
     const response = await request(app).post('/users').send({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaulpaul' })
@@ -29,16 +52,16 @@ describe('Test suite for the /users routes on our api', () => {
   })
 
   test('It should login a user', async () => {
-    const user = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaulpaul' })
+    const user = new User({ name: 'Paul', email: 'paul@paul.website', password: 'oh' })
     await user.save()
 
     const response = await request(app)
       .post('/users/login')
-      .send({ email: 'paul@paul.paul', password: 'paulpaulpaul' })
-    
+      .send({ email: 'paul@paul.website', password: 'oh' })
+
     expect(response.statusCode).toBe(200)
     expect(response.body.user.name).toEqual('Paul')
-    expect(response.body.user.email).toEqual('paul@paul.paul')
+    expect(response.body.user.email).toEqual('paul@paul.website')
     expect(response.body).toHaveProperty('token')
   })
 
@@ -51,7 +74,7 @@ describe('Test suite for the /users routes on our api', () => {
     const token2 = await user2.generateAuthToken()
         
     const response = await request(app)
-      .post(`/users/contacts/${user1._id}/${user2._id}`)
+      .post(`/users/contacts/${user1._id}/add/${user2._id}`)
       .set('Authorization', `Bearer ${token1}`)
 
     expect(response.statusCode).toBe(200)
@@ -82,8 +105,10 @@ describe('Test suite for the /users routes on our api', () => {
       expect(response.statusCode).toBe(200)
       expect(Array.isArray(response.body.user1.contacts)).toBeTruthy()
       expect(response.body.message).toEqual(`Successfully disassociated user with id ${user1._id} from user with id ${user2._id}`)
-      expect(response.body.user1.contacts).toEqual([`${user3._id}`])
-      expect(response.body.user2.contacts).toEqual([`${user3._id}`])
+      expect(response.body.user1.contacts).toContain(`${user3._id}`)
+      expect(response.body.user2.contacts).toContain(`${user3._id}`)
+      expect(response.body.user1.contacts).not.toContain(`${user2._id}`)
+      expect(response.body.user2.contacts).not.toContain(`${user1._id}`)
   })
 
   test('It should update a user', async () => {
@@ -112,6 +137,22 @@ describe('Test suite for the /users routes on our api', () => {
 
     expect(response.statusCode).toBe(200)
     expect(response.body.message).toEqual('User deleted')
+  })
+
+  test('It should show a specific user', async () => {
+    const user1 = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaul' })
+    const user2 = new User({ name: 'Paul2', email: 'paul@paul.paul2', password: 'paulpaul2' })
+    const token = await user1.generateAuthToken()
+    await user1.save()
+    await user2.save()
+
+    const response = await request(app)
+      .get(`/users/${user2._id}`)
+      .set('Authorization', `Bearer ${token}`)
+  
+    expect(response.statusCode).toBe(200)
+    expect(response.body.name).toEqual('Paul2')
+    expect(response.body.email).toEqual('paul@paul.paul2')
   })
 })
 

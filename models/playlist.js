@@ -5,7 +5,9 @@ const playlistSchema = new mongoose.Schema ({
   title: { type: String, required: true },
   public: { type: Boolean, default: false },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  songs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Song' }]
+  songs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Song' }],
+  shared: [],
+  cloned: []
 })
 
 const Playlist = mongoose.model('Playlist', playlistSchema)

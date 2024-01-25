@@ -107,6 +107,34 @@ describe('Test suite for the /playlists routes on our api', () => {
       expect(response.body.playlist.songs).toEqual([`${song2._id}`, `${song3._id}`])
     })
 
+    test(`It should clone an existing playlist and add it to the user's playlists array without affecting original playlist`, async () => {
+      const user1 = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaulpaul' })
+      const user2 = new User({ name: 'Other guy', email: 'coolguy@coolguy.cool', password: "doyouthinkimcool" })
+      const token2 = await user2.generateAuthToken()
+      const playlist = new Playlist({ title: 'Best playlist', user: user1._id })
+      const song = new Song({ title: 'cool song', artist: 'cool artist', album: 'so so album', genre: 'electro-pop-punk-reggae' })
+      playlist.songs.push(song._id)
+      user1.playlists.push(playlist._id)
+      await user1.save()
+      await user2.save()
+      await playlist.save()
+      await song.save()
+
+      const response = await request(app)
+        .post(`/playlists/${playlist._id}/clone/${user2._id}`)
+        .set('Authorization', `Bearer ${token2}`)
+
+      let newPlaylist = response.body.playlist2  
+      expect(response.statusCode).toBe(200)
+      expect(response.body.playlist2.user).toEqual(`${user2._id}`)
+      expect(response.body.playlist2.songs).toContain(`${song._id}`)
+      expect(response.body.playlist1.songs).toContain(`${song._id}`)
+      expect(response.body.playlist1.user).toEqual(`${user1._id}`)
+      expect(response.body.playlist1.cloned).toContain(`${user2._id}`)
+      expect(response.body.user.playlists).not.toContain(`${playlist._id}`)
+      expect(response.body.user.playlists).toContain(`${newPlaylist._id}`)
+    })
+
     // update test when playlist can be shared with multiple users
     
     test('it should update a playlist', async () => {

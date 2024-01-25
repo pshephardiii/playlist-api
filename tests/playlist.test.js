@@ -105,8 +105,6 @@ describe('Test suite for the /playlists routes on our api', () => {
       expect(Array.isArray(response.body.playlist.songs)).toBeTruthy()
       expect(response.body.message).toEqual(`Successfully removed song ${song1._id} from playlist ${playlist1._id}`)
       expect(response.body.playlist.songs).toEqual([`${song2._id}`, `${song3._id}`])
-
-      
     })
 
     // update test when playlist can be shared with multiple users

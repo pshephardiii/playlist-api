@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true },
   password: { type: String, required: true },
+  contacts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   playlists: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Playlist' }]
 })
 

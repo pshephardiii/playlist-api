@@ -42,6 +42,44 @@ exports.loginUser = async (req, res) => {
   }
 }
 
+exports.addContact = async (req, res) => {
+  try{
+    const user1 = await User.findOne({ _id: req.params.userId })
+    const user2 = await User.findOne({ _id: req.params.contactId })
+    user1.contacts.push(user2._id)
+    user2.contacts.push(user1._id)
+    await user1.save()
+    await user2.save()
+    res.status(200).json({
+      message: `Successfully associated user with id ${user1._id} with user with id ${user2._id}`,
+      user1: user1,
+      user2: user2
+    })
+  } catch (error) {
+    res.status(400).json({ message: error.message })
+  }
+}
+
+exports.removeContact = async (req, res) => {
+  try {
+    const user1 = await User.findOne({ _id: req.params.userId })
+    const user2 = await User.findOne({ _id: req.params.contactId })
+    const userIndex1 = user1.contacts.indexOf(user2._id)
+    const userIndex2 = user2.contacts.indexOf(user1._id)
+    user1.contacts.splice(userIndex1, 1)
+    user2.contacts.splice(userIndex2, 1)
+    await user1.save()
+    await user2.save()
+    res.status(200).json({
+      message: `Successfully disassociated user with id ${user1._id} from user with id ${user2._id}`,
+      user1: user1,
+      user2: user2
+    })
+  } catch (error) {
+    res.status(400).json({ message: error.message })
+  }
+}
+
 exports.updateUser = async (req, res) => {
   try{
     const updates = Object.keys(req.body)

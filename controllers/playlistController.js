@@ -1,4 +1,5 @@
 const Playlist = require('../models/playlist')
+const Song = require('../models/song')
 const User = require('../models/user')
 
 
@@ -24,13 +25,21 @@ exports.createPlaylist = async (req, res) => {
   }
 }
 
-// update function
-
 exports.addSong = async (req, res) => {
   try {
-    
+    const foundPlaylist = await Playlist.findOne({ _id: req.params.playlistId })
+    const foundSong = await Song.findOne({ _id: req.params. songId })
+    foundPlaylist.songs.push(foundSong._id)
+    foundSong.playlists.push(foundPlaylist._id)
+    await foundPlaylist.save()
+    await foundSong.save()
+    res.status(200).json({
+        message: `Successfully added song ${req.params.songId} to playlist ${req.params.playlistId}`,
+        playlist: foundPlaylist,
+        song: foundSong
+    })
   } catch (error) {
-    
+    res.status(400).json({ message: error.message })
   }
 }
 
@@ -38,9 +47,21 @@ exports.addSong = async (req, res) => {
 
 exports.removeSong = async (req, res) => {
   try {
-    
+    const foundPlaylist = await Playlist.findOne({ _id: req.params.playlistId })
+    const foundSong = await Song.findOne({ _id: req.params. songId })
+    const songIndex = foundPlaylist.songs.indexOf(foundSong._id)
+    const playlistIndex = foundSong.playlists.indexOf(foundPlaylist._id)
+    foundPlaylist.songs.splice(songIndex, 1)
+    foundSong.playlists.splice(playlistIndex, 1)
+    await foundPlaylist.save()
+    await foundSong.save()
+    res.status(200).json({
+        message: `Successfully removed song ${req.params.songId} from playlist ${req.params.playlistId}`,
+        playlist: foundPlaylist,
+        song: foundSong
+    })
   } catch (error) {
-    
+    res.status(400).json({ message: error.message })
   }
 }
 

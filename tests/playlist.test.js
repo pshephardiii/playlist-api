@@ -4,6 +4,7 @@ const app = require('../app')
 const User = require('../models/user') 
 const Playlist = require('../models/playlist')
 const mongoose = require('mongoose')
+const Song = require('../models/song')
 const server = app.listen(3001, () => console.log('Testing on Port 3001'))
 let mongoServer 
 
@@ -58,6 +59,54 @@ describe('Test suite for the /playlists routes on our api', () => {
       expect(response.body.playlist.title).toEqual('Bangers Only')
       expect(response.body.playlist.user).toEqual(`${user._id}`)
       expect(response.body.foundUser.playlists).toContain(response.body.playlist._id)
+    })
+
+    test('it should add a song to the playlist and update both songs and playlists arrays', async () => {
+      const user = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaul' })
+      await user.save()
+      const token = await user.generateAuthToken()
+      const playlist1 = new Playlist({ title: 'PLAYLIST', user: user._id })
+      const song1 = new Song({ title: 'banger', artist: 'Me', album: 'also Me', genre: 'cool tunes' })
+      await playlist1.save()
+      await song1.save()
+
+      const response = await request(app)
+        .post(`/playlists/${playlist1._id}/songs/${song1._id}`)
+        .set('Authorization', `Bearer ${token}`)
+    
+      expect(response.statusCode).toBe(200)
+      expect(Array.isArray(response.body.playlist.songs)).toBeTruthy()
+      expect(Array.isArray(response.body.song.playlists)).toBeTruthy()
+      expect(response.body.playlist.songs).toContain(`${song1._id}`)
+      expect(response.body.song.playlists).toContain(`${playlist1._id}`)
+
+    })
+
+    test('it should remove a song from the playlist and update both songs and playlists arrays', async () => {
+      const user = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaul' })
+      await user.save()
+      const token = await user.generateAuthToken()
+      const playlist1 = new Playlist({ title: 'PLAYLIST', user: user._id, songs: [] })
+      const song1 = new Song({ title: 'banger', artist: 'Me', album: 'also Me', genre: 'cool tunes', playlists: [playlist1._id] })
+      const song2 = new Song({ title: 'banger', artist: 'Me', album: 'also Me', genre: 'cool tunes', playlists: [playlist1._id] })
+      const song3 = new Song({ title: 'banger', artist: 'Me', album: 'also Me', genre: 'cool tunes', playlists: [playlist1._id] })
+      playlist1.songs.push(song1._id, song2._id, song3._id)
+      
+      await playlist1.save()
+      await song1.save()
+      await song2.save()
+      await song3.save()
+
+      const response = await request(app)
+        .post(`/playlists/${playlist1._id}/remove/songs/${song1._id}`)
+        .set('Authorization', `Bearer ${token}`)
+    
+      expect(response.statusCode).toBe(200)
+      expect(Array.isArray(response.body.playlist.songs)).toBeTruthy()
+      expect(response.body.message).toEqual(`Successfully removed song ${song1._id} from playlist ${playlist1._id}`)
+      expect(response.body.playlist.songs).toEqual([`${song2._id}`, `${song3._id}`])
+
+      
     })
 
     // update test when playlist can be shared with multiple users

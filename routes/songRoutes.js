@@ -2,8 +2,6 @@ const express = require('express')
 const router = express.Router()
 const songController = require('../controllers/songController')
 
-
-// I'll need to figure out how to index songs based on artist and album
 // I'll need to figure out how to add and delete songs from playlists
 
 router.get('/', songController.indexAllSongs)

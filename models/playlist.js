@@ -3,6 +3,7 @@ const User = require('./user')
 
 const playlistSchema = new mongoose.Schema ({
   title: { type: String, required: true },
+  public: { type: Boolean, default: false },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   songs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Song' }]
 })

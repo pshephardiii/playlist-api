@@ -5,7 +5,17 @@ const Comment = require('../models/comment')
 
 exports.indexPlaylists = async (req, res) => {
   try {
-    const playlists = await Playlist.find({})
+    const playlists = await Playlist.find({ public: true })
+    res.status(200).json(playlists)
+  } catch (error) {
+    res.status(400).json({ message: error.message })
+  }
+}
+
+exports.indexOwnedPlaylists = async (req, res) => {
+  try {
+    const user = await User.find({ _id: req.params.userId })
+    const playlists = await Playlist.find({ user: user })
     res.status(200).json(playlists)
   } catch (error) {
     res.status(400).json({ message: error.message })
@@ -130,7 +140,11 @@ exports.deletePlaylist = async (req, res) => {
 
 exports.showPlaylist = async (req, res) => {
     try {
-      const playlist = await Playlist.findOne({ _id: req.params.id })
+      const user = await User.findOne({ _id: req.params.ownerId })
+      const playlist = await Playlist.findOne({ _id: req.params.searchedPlaylistId })
+      // if ((playlist.public === false) && (playlist.user !== user._id)){
+      //   throw new Error('playlist is set to private')
+      // }
       res.status(200).json(playlist)
     } catch (error) {
       res.status(400).json({ message: error.message })

@@ -97,6 +97,8 @@ describe('Test suite for the /users routes on our api', () => {
       .set('Authorization', `Bearer ${token}`)
 
     expect(response.statusCode).toBe(401)
+    expect(user1.contacts).not.toContain(user2._id)
+    expect(user2.contacts).not.toContain(user1._id)
   })
 
   test(`It should remove two users from each other's contacts arrays`, async () => {
@@ -141,6 +143,8 @@ describe('Test suite for the /users routes on our api', () => {
       .set('Authorization', `Bearer ${token3}`)
 
     expect(response.statusCode).toBe(401)
+    expect(user1.contacts).toContain(user2._id)
+    expect(user2.contacts).toContain(user1._id)
   })
 
   test('It should update a user', async () => {
@@ -183,8 +187,10 @@ describe('Test suite for the /users routes on our api', () => {
       .delete(`/users/${user._id}`)
       .set('Authorization', `Bearer ${token}`)
 
+    let allUsers = await User.find({})  
     expect(response.statusCode).toBe(200)
     expect(response.body.message).toEqual('User deleted')
+    expect(allUsers).not.toContain(user)
   })
 
   test('It should fail to delete a user due to authorization', async () => {
@@ -198,6 +204,7 @@ describe('Test suite for the /users routes on our api', () => {
     .delete(`/users/${user1._id}`)
     .set('Authorization', `Bearer ${token}`)
 
+    
     expect(response.statusCode).toBe(401)
     expect(user1).toHaveProperty('name')
   })

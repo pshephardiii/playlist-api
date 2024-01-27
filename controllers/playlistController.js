@@ -27,14 +27,14 @@ exports.createPlaylist = async (req, res) => {
 
 exports.addSong = async (req, res) => {
   try {
-    const foundPlaylist = await Playlist.findOne({ _id: req.params.playlistId })
+    const foundPlaylist = await Playlist.findOne({ _id: req.params.id })
     const foundSong = await Song.findOne({ _id: req.params. songId })
     foundPlaylist.songs.push(foundSong._id)
     foundSong.playlists.push(foundPlaylist._id)
     await foundPlaylist.save()
     await foundSong.save()
     res.status(200).json({
-        message: `Successfully added song ${req.params.songId} to playlist ${req.params.playlistId}`,
+        message: `Successfully added song ${req.params.songId} to playlist ${req.params.id}`,
         playlist: foundPlaylist,
         song: foundSong
     })
@@ -45,8 +45,8 @@ exports.addSong = async (req, res) => {
 
 exports.removeSong = async (req, res) => {
   try {
-    const foundPlaylist = await Playlist.findOne({ _id: req.params.playlistId })
-    const foundSong = await Song.findOne({ _id: req.params. songId })
+    const foundPlaylist = await Playlist.findOne({ _id: req.params.id })
+    const foundSong = await Song.findOne({ _id: req.params.songId })
     const songIndex = foundPlaylist.songs.indexOf(foundSong._id)
     const playlistIndex = foundSong.playlists.indexOf(foundPlaylist._id)
     foundPlaylist.songs.splice(songIndex, 1)
@@ -54,7 +54,7 @@ exports.removeSong = async (req, res) => {
     await foundPlaylist.save()
     await foundSong.save()
     res.status(200).json({
-        message: `Successfully removed song ${req.params.songId} from playlist ${req.params.playlistId}`,
+        message: `Successfully removed song ${req.params.songId} from playlist ${req.params.id}`,
         playlist: foundPlaylist,
         song: foundSong
     })
@@ -65,7 +65,7 @@ exports.removeSong = async (req, res) => {
 
 exports.clonePlaylist = async (req, res) => {
     try {
-      const existingPlaylist = await Playlist.findOne({ _id: req.params.playlistId })
+      const existingPlaylist = await Playlist.findOne({ _id: req.params.id })
       const cloningUser = await User.findOne({ _id: req.params.userId })
       existingPlaylist.cloned.push(cloningUser._id)
       const existingPlaylistSongs = existingPlaylist.songs.slice()
@@ -117,8 +117,12 @@ exports.updatePlaylist = async (req, res) => {
 
 exports.deletePlaylist = async (req, res) => {
   try {
-    await Playlist.findOneAndDelete({ _id: req.params.id })
-    res.status(200).json({ message: `Playlist ${req.params.id} deleted` })
+    const owner = await User.findOne({ _id: req.params.userId})
+    const playlistIndex = owner.playlists.indexOf(req.params.playlistId)
+    owner.playlists.splice(playlistIndex, 1)
+    await owner.save()
+    await Playlist.findOneAndDelete({ _id: req.params.playlistId })
+    res.status(200).json({ message: `Playlist ${req.params.playlistId} deleted`, updatedPlaylistsArr: owner.playlists })
   } catch (error) {
     res.status(400).json({ message: error.message })
   }

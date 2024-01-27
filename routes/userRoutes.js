@@ -7,8 +7,8 @@ router.post('/', userController.createUser)
 router.post('/login', userController.loginUser)
 router.post('/contacts/:userId/add/:contactId', userController.auth, userController.addContact)
 router.post('/contacts/:userId/remove/:contactId', userController.auth, userController.removeContact)
-router.put('/:id', userController.auth, userController.updateUser)
-router.delete('/:id', userController.auth, userController.deleteUser)
+router.put('/:userId', userController.auth, userController.updateUser)
+router.delete('/:userId', userController.auth, userController.deleteUser)
 router.get('/:id', userController.auth, userController.showUser)
 
 module.exports = router

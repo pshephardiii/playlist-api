@@ -1,16 +1,30 @@
 const User = require('../models/user')
+const Playlist = require('../models/playlist')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+
+// come back here!
+// CHECK: automated tests need their routes updated and then see if they pass.  If they do, commence to manual testing.  If not, mess with below.
 
 exports.auth = async (req, res, next) => {
   try {
     const token = req.header('Authorization').replace('Bearer ', '')
-    const data = jwt.verify(token, 'secret')
+    const data = jwt.verify(token, process.env.SECRET)
     const user = await User.findOne({ _id: data._id })
     if (!user) {
       throw new Error()
     }
     req.user = user
+    if(req.params.userId){
+      if (req.params.userId !== data._id){
+        throw new Error('Not authorized')
+      }
+    }
+    if (req.params.playlistId){
+      if (!(user.playlists.includes(req.params.playlistId))){
+        throw new Error('Not authorized')
+      }
+    }
     next()
   } catch (error) {
     res.status(401).send('Not authorized')
@@ -92,7 +106,7 @@ exports.removeContact = async (req, res) => {
 exports.updateUser = async (req, res) => {
   try{
     const updates = Object.keys(req.body)
-    const user = await User.findOne({ _id: req.params.id })
+    const user = await User.findOne({ _id: req.params.userId })
     updates.forEach(update => user[update] = req.body[update])
     await user.save()
     res.status(200).json(user)

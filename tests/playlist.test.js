@@ -183,17 +183,41 @@ describe('Test suite for the /playlists routes on our api', () => {
 
     test('it should delete a playlist', async () => {
         const user = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaulpaul' })
-        await user.save()
         const token = await user.generateAuthToken()
         const playlist = new Playlist({ title: 'Bangers Only', user: `${user._id}` })
+        user.playlists.push(playlist._id)
+        await user.save()
         await playlist.save()
 
         const response = await request(app)
-          .delete(`/playlists/${playlist._id}`)
+          .delete(`/playlists/${user._id}/${playlist._id}`)
           .set('Authorization', `Bearer ${token}`)
 
+        let allPlaylists = await Playlist.find({})
         expect(response.statusCode).toBe(200)
         expect(response.body.message).toEqual(`Playlist ${playlist._id} deleted`)
+        expect(allPlaylists).not.toContain(playlist)
+        expect(response.body.updatedPlaylistsArr).not.toContain(playlist._id)
+    })
+
+    test('It should fail to delete a user due to lack of authorization', async () => {
+      const user1 = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaulpaul' })
+      const user2 = new User({ name: 'otherguy', email: 'coolguy', password: 'whatever' })
+      const token = await user2.generateAuthToken()
+      const playlist = new Playlist({ title: 'Do not delete', user: `${user1._id}` })
+      user1.playlists.push(playlist._id)
+      await user1.save()
+      await user2.save()
+      await playlist.save()
+
+      const response = await request(app)
+        .delete(`/playlists/${user1._id}/${playlist._id}`)
+        .set('Authorization', `Bearer ${token}`)
+
+        let allPlaylists = await Playlist.find({})
+        expect(response.statusCode).toBe(401)
+        expect(playlist).toHaveProperty('title')
+        expect(user1.playlists).toContain(playlist._id)
     })
 
     test('it should get a playlist by id', async () => {

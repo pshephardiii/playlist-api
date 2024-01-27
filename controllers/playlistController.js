@@ -27,14 +27,14 @@ exports.createPlaylist = async (req, res) => {
 
 exports.addSong = async (req, res) => {
   try {
-    const foundPlaylist = await Playlist.findOne({ _id: req.params.id })
+    const foundPlaylist = await Playlist.findOne({ _id: req.params.playlistId })
     const foundSong = await Song.findOne({ _id: req.params. songId })
     foundPlaylist.songs.push(foundSong._id)
     foundSong.playlists.push(foundPlaylist._id)
     await foundPlaylist.save()
     await foundSong.save()
     res.status(200).json({
-        message: `Successfully added song ${req.params.songId} to playlist ${req.params.id}`,
+        message: `Successfully added song ${req.params.songId} to playlist ${req.params.playlistId}`,
         playlist: foundPlaylist,
         song: foundSong
     })
@@ -45,7 +45,7 @@ exports.addSong = async (req, res) => {
 
 exports.removeSong = async (req, res) => {
   try {
-    const foundPlaylist = await Playlist.findOne({ _id: req.params.id })
+    const foundPlaylist = await Playlist.findOne({ _id: req.params.playlistId })
     const foundSong = await Song.findOne({ _id: req.params.songId })
     const songIndex = foundPlaylist.songs.indexOf(foundSong._id)
     const playlistIndex = foundSong.playlists.indexOf(foundPlaylist._id)
@@ -54,7 +54,7 @@ exports.removeSong = async (req, res) => {
     await foundPlaylist.save()
     await foundSong.save()
     res.status(200).json({
-        message: `Successfully removed song ${req.params.songId} from playlist ${req.params.id}`,
+        message: `Successfully removed song ${req.params.songId} from playlist ${req.params.playlistId}`,
         playlist: foundPlaylist,
         song: foundSong
     })
@@ -87,9 +87,9 @@ exports.clonePlaylist = async (req, res) => {
 
 exports.leaveComment = async (req, res) => {
   try {
-    const commentingUser = await User.findOne({ _id: req.body.userId })
+    const commentingUser = await User.findOne({ _id: req.body.commenterId })
     const foundPlaylist = await Playlist.findOne({ _id: req.body.playlistId })
-    const newComment = new Comment({ body: req.body.commentBody, user: req.body.userId, playlist: req.body.playlistId })
+    const newComment = new Comment({ content: req.body.commentBody, user: commentingUser._id, playlist: foundPlaylist._id })
     foundPlaylist.comments.push(newComment._id)
     newComment.playlist = foundPlaylist._id
     commentingUser.comments.push(newComment._id)
@@ -97,9 +97,9 @@ exports.leaveComment = async (req, res) => {
     await foundPlaylist.save()
     await commentingUser.save()
     res.status(200).json({
-        newComment: newComment,
-        foundPlaylist: foundPlaylist,
-        commentingUser: commentingUser
+        comment: newComment,
+        playlist: foundPlaylist,
+        commenter: commentingUser
     })
   } catch (error) {
     res.status(400).json({ message: error.message })
@@ -108,7 +108,7 @@ exports.leaveComment = async (req, res) => {
 
 exports.updatePlaylist = async (req, res) => {
   try {
-    const playlist = await Playlist.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true })
+    const playlist = await Playlist.findOneAndUpdate({ _id: req.params.playlistId }, req.body, { new: true })
     res.status(200).json(playlist)
   } catch (error) {
     res.status(400).json({ message: error.message })

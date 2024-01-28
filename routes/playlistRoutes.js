@@ -8,10 +8,10 @@ router.get('/:userId', userController.auth, playlistController.indexOwnedPlaylis
 router.post('/', userController.auth, playlistController.createPlaylist)
 router.post('/:playlistId/add/songs/:songId', userController.auth, playlistController.addSong)
 router.post('/:playlistId/remove/songs/:songId', userController.auth, playlistController.removeSong)
-router.post('/:searchedPlaylistId/clone/:searchingUserId', userController.auth, playlistController.clonePlaylist)
-router.post('/:userId/:id/comment/', userController.auth, playlistController.leaveComment)
+router.post('/:searchedPlaylistId/clone/:userId', userController.auth, playlistController.clonePlaylist)
+router.post('/:userId/:foundPlaylistId/comment', userController.auth, playlistController.leaveComment)
 router.put('/:playlistId', userController.auth, playlistController.updatePlaylist)
-router.delete('/:userId/:playlistId', userController.auth, playlistController.deletePlaylist)
-router.get('/search/:searchingUserId/:searchedPlaylistId', userController.auth, playlistController.showPlaylist)
+router.delete('/:playlistId/:userId', userController.auth, playlistController.deletePlaylist)
+router.get('/:userId/:searchedPlaylistId', userController.auth, playlistController.showPlaylist)
 
 module.exports = router

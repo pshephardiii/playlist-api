@@ -76,7 +76,7 @@ exports.removeSong = async (req, res) => {
 exports.clonePlaylist = async (req, res) => {
     try {
       const existingPlaylist = await Playlist.findOne({ _id: req.params.searchedPlaylistId })
-      const cloningUser = await User.findOne({ _id: req.params.searchingUserId })
+      const cloningUser = await User.findOne({ _id: req.params.userId })
       if (existingPlaylist.public === false) {
         if (`${existingPlaylist.user}` !== `${cloningUser._id}`) {
           throw new Error('playlist is set to private')
@@ -103,7 +103,12 @@ exports.clonePlaylist = async (req, res) => {
 exports.leaveComment = async (req, res) => {
   try {
     const commentingUser = await User.findOne({ _id: req.body.commenterId })
-    const foundPlaylist = await Playlist.findOne({ _id: req.body.playlistId })
+    const foundPlaylist = await Playlist.findOne({ _id: req.body.foundPlaylistId })
+    if (foundPlaylist.public === false) {
+      if (`${foundPlaylist.user}` !== `${commentingUser._id}`) {
+        throw new Error('playlist is set to private')
+      }
+    }
     const newComment = new Comment({ content: req.body.commentBody, user: commentingUser._id, playlist: foundPlaylist._id })
     foundPlaylist.comments.push(newComment._id)
     newComment.playlist = foundPlaylist._id
@@ -132,7 +137,7 @@ exports.updatePlaylist = async (req, res) => {
 
 exports.deletePlaylist = async (req, res) => {
   try {
-    const owner = await User.findOne({ _id: req.params.userId})
+    const owner = await User.findOne({ _id: req.params.userId })
     const playlistIndex = owner.playlists.indexOf(req.params.playlistId)
     owner.playlists.splice(playlistIndex, 1)
     await owner.save()
@@ -145,7 +150,7 @@ exports.deletePlaylist = async (req, res) => {
 
 exports.showPlaylist = async (req, res) => {
     try {
-      const user = await User.findOne({ _id: req.params.searchingUserId })
+      const user = await User.findOne({ _id: req.params.userId })
       const playlist = await Playlist.findOne({ _id: req.params.searchedPlaylistId })
       if (playlist.public === false) {
         if (`${playlist.user}` !== `${user._id}`){

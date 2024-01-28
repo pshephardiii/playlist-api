@@ -27,9 +27,9 @@ describe('Test suite for the /playlists routes on our api', () => {
         const user = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaulpaul' })
         await user.save()
         const token = await user.generateAuthToken()
-        const playlist1 = new Playlist ({ title: 'title1', user: `${user._id}`, public: true })
-        const playlist2 = new Playlist ({ title: 'title2', user: `${user._id}`, public: true })
-        const playlist3 = new Playlist ({ title: 'title3', user: `${user._id}`, public: false })
+        const playlist1 = new Playlist ({ title: 'title1', user: user._id, public: true })
+        const playlist2 = new Playlist ({ title: 'title2', user: user._id, public: true })
+        const playlist3 = new Playlist ({ title: 'title3', user: user._id, public: false })
         await playlist1.save()
         await playlist2.save()
         await playlist3.save()
@@ -53,9 +53,9 @@ describe('Test suite for the /playlists routes on our api', () => {
         const user = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaulpaul' })
         const otherUser = new User({ name: 'Paul2', email: 'paul@paul.paul2', password: 'paulpaulpaul2' })
         const token = await user.generateAuthToken()
-        const playlist1 = new Playlist ({ title: 'title1', user: `${user._id}`, public: true })
-        const playlist2 = new Playlist ({ title: 'title2', user: `${user._id}`, public: true })
-        const playlist3 = new Playlist ({ title: 'title3', user: `${otherUser._id}`, public: true })
+        const playlist1 = new Playlist ({ title: 'title1', user: user._id, public: true })
+        const playlist2 = new Playlist ({ title: 'title2', user: user._id, public: true })
+        const playlist3 = new Playlist ({ title: 'title3', user: otherUser._id, public: true })
         user.playlists.push(playlist1, playlist2)
         await user.save()
         await otherUser.save()
@@ -234,7 +234,7 @@ describe('Test suite for the /playlists routes on our api', () => {
 
     test('it should create a new comment on a playlist and add IDs into arrays on Comment, User, and Playlist', async () => {
       const user = new User({ name: 'Paul', email: 'paul@funtimes.fun', password: 'paulpaulpaul' })
-      const playlist = new Playlist({ title: 'Bangers Only' })
+      const playlist = new Playlist({ title: 'Bangers Only', public: true })
       const token = await user.generateAuthToken()
       await user.save()
       await playlist.save()
@@ -243,7 +243,7 @@ describe('Test suite for the /playlists routes on our api', () => {
         .post(`/playlists/${user._id}/${playlist._id}/comment`)
         .send({
             commenterId: user._id,
-            playlistId: playlist._id,
+            foundPlaylistId: playlist._id,
             commentBody: 'what a great playlist!'
         })
         .set('Authorization', `Bearer ${token}`)
@@ -258,10 +258,33 @@ describe('Test suite for the /playlists routes on our api', () => {
       expect(response.body.comment.content).toEqual('what a great playlist!')
     })
 
+    test('it should fail to create a new comment on a playlist due to privacy settings', async () => {
+      const user1 = new User({ name: 'Paul', email: 'paul@funtimes.fun', password: 'paulpaulpaul' })
+      const user2 = new User({ name: 'Paul2', email: 'paul@funtimes.fun2', password: 'paulpaulpaul2' })
+      const playlist = new Playlist({ title: 'Bangers Only', user: user2._id, public: false })
+      const token = await user1.generateAuthToken()
+      await user1.save()
+      await user2.save()
+      await playlist.save()
+
+      const response = await request(app)
+        .post(`/playlists/${user1._id}/${playlist._id}/comment`)
+        .send({
+            commenterId: user1._id,
+            foundPlaylistId: playlist._id,
+            commentBody: 'what a great playlist!'
+        })
+        .set('Authorization', `Bearer ${token}`)
+      
+      expect(response.statusCode).toBe(400)
+      expect(user1.comments).toEqual([])
+      expect(playlist.comments).toEqual([])
+    })
+
     test('it should fail to create a new comment on a playlist due to authorization', async () => {
       const user1 = new User({ name: 'Paul', email: 'paul@funtimes.fun', password: 'paulpaulpaul' })
       const user2 = new User({ name: 'Paul', email: 'paul@funtimes.fun2', password: 'paulpaulpaul2' })
-      const playlist = new Playlist({ title: 'Bangers Only' })
+      const playlist = new Playlist({ title: 'Bangers Only', user: user2._id, public: true })
       const token = await user2.generateAuthToken()
       await user1.save()
       await user2.save()
@@ -286,7 +309,7 @@ describe('Test suite for the /playlists routes on our api', () => {
     test('it should update a playlist', async () => {
         const user = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaulpaul' })
         const token = await user.generateAuthToken()
-        const playlist = new Playlist({ title: 'Bangers Only', user: `${user._id}` })
+        const playlist = new Playlist({ title: 'Bangers Only', user: user._id })
         user.playlists.push(playlist._id)
         await user.save()
         await playlist.save()
@@ -305,7 +328,7 @@ describe('Test suite for the /playlists routes on our api', () => {
       const user1 = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaulpaul' })
       const user2 = new User({ name: 'Paul2', email: 'paul@paul.paul2', password: 'paulpaulpaul2' })
       const token = await user2.generateAuthToken()
-      const playlist = new Playlist({ title: 'Bangers Only', user: `${user1._id}` })
+      const playlist = new Playlist({ title: 'Bangers Only', user: user1._id })
       user1.playlists.push(playlist._id)
       await user1.save()
       await user2.save()
@@ -323,13 +346,13 @@ describe('Test suite for the /playlists routes on our api', () => {
     test('it should delete a playlist', async () => {
         const user = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaulpaul' })
         const token = await user.generateAuthToken()
-        const playlist = new Playlist({ title: 'Bangers Only', user: `${user._id}` })
+        const playlist = new Playlist({ title: 'Bangers Only', user: user._id })
         user.playlists.push(playlist._id)
         await user.save()
         await playlist.save()
 
         const response = await request(app)
-          .delete(`/playlists/${user._id}/${playlist._id}`)
+          .delete(`/playlists/${playlist._id}/${user._id}`)
           .set('Authorization', `Bearer ${token}`)
 
         let allPlaylists = await Playlist.find({})
@@ -343,14 +366,14 @@ describe('Test suite for the /playlists routes on our api', () => {
       const user1 = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaulpaul' })
       const user2 = new User({ name: 'otherguy', email: 'coolguy', password: 'whatever' })
       const token = await user2.generateAuthToken()
-      const playlist = new Playlist({ title: 'Do not delete', user: `${user1._id}` })
+      const playlist = new Playlist({ title: 'Do not delete', user: user1._id })
       user1.playlists.push(playlist._id)
       await user1.save()
       await user2.save()
       await playlist.save()
 
       const response = await request(app)
-        .delete(`/playlists/${user1._id}/${playlist._id}`)
+        .delete(`/playlists/${playlist._id}/${user2._id}`)
         .set('Authorization', `Bearer ${token}`)
 
         let allPlaylists = await Playlist.find({})
@@ -367,7 +390,7 @@ describe('Test suite for the /playlists routes on our api', () => {
         await playlist.save()
 
         const response = await request(app)
-          .get(`/playlists/search/${user._id}/${playlist._id}`)
+          .get(`/playlists/${user._id}/${playlist._id}`)
           .set('Authorization', `Bearer ${token}`)
 
         expect(response.statusCode).toBe(200)
@@ -385,7 +408,7 @@ describe('Test suite for the /playlists routes on our api', () => {
       await playlist.save()
 
       const response = await request(app)
-        .get(`/playlists/search/${user2._id}/${playlist._id}`)
+        .get(`/playlists/${user2._id}/${playlist._id}`)
         .set('Authorization', `Bearer ${token}`)
 
       expect(response.statusCode).toBe(200)
@@ -403,7 +426,7 @@ describe('Test suite for the /playlists routes on our api', () => {
     await playlist.save()
 
     const response = await request(app)
-      .get(`/playlists/search/${user2._id}/${playlist._id}`)
+      .get(`/playlists/${user2._id}/${playlist._id}`)
       .set('Authorization', `Bearer ${token}`)
 
     expect(response.statusCode).toBe(400)

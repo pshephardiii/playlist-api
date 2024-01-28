@@ -7,7 +7,8 @@ const playlistSchema = new mongoose.Schema ({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   songs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Song' }],
   comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment'}],
-  cloned: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+  cloned: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  likes: Number
 })
 
 const Playlist = mongoose.model('Playlist', playlistSchema)

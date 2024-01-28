@@ -75,8 +75,13 @@ exports.removeSong = async (req, res) => {
 
 exports.clonePlaylist = async (req, res) => {
     try {
-      const existingPlaylist = await Playlist.findOne({ _id: req.params.id })
-      const cloningUser = await User.findOne({ _id: req.params.userId })
+      const existingPlaylist = await Playlist.findOne({ _id: req.params.searchedPlaylistId })
+      const cloningUser = await User.findOne({ _id: req.params.searchingUserId })
+      if (existingPlaylist.public === false) {
+        if (`${existingPlaylist.user}` !== `${cloningUser._id}`) {
+          throw new Error('playlist is set to private')
+        }
+      }
       existingPlaylist.cloned.push(cloningUser._id)
       const existingPlaylistSongs = existingPlaylist.songs.slice()
       const clonePlaylist = new Playlist({ title: `${existingPlaylist.title}_copy`, user: cloningUser._id, songs: existingPlaylistSongs })
@@ -140,11 +145,13 @@ exports.deletePlaylist = async (req, res) => {
 
 exports.showPlaylist = async (req, res) => {
     try {
-      const user = await User.findOne({ _id: req.params.ownerId })
+      const user = await User.findOne({ _id: req.params.searchingUserId })
       const playlist = await Playlist.findOne({ _id: req.params.searchedPlaylistId })
-      // if ((playlist.public === false) && (playlist.user !== user._id)){
-      //   throw new Error('playlist is set to private')
-      // }
+      if (playlist.public === false) {
+        if (`${playlist.user}` !== `${user._id}`){
+          throw new Error('playlist is set to private')
+        }
+      }
       res.status(200).json(playlist)
     } catch (error) {
       res.status(400).json({ message: error.message })

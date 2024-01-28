@@ -186,8 +186,8 @@ describe('Test suite for the /playlists routes on our api', () => {
     test(`It should clone an existing playlist and add it to the user's playlists array without affecting original playlist`, async () => {
       const user1 = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaulpaul' })
       const user2 = new User({ name: 'Other guy', email: 'coolguy@coolguy.cool', password: "doyouthinkimcool" })
-      const token2 = await user2.generateAuthToken()
-      const playlist = new Playlist({ title: 'Best playlist', user: user1._id })
+      const token = await user2.generateAuthToken()
+      const playlist = new Playlist({ title: 'Best playlist', user: user1._id, public: true })
       const song = new Song({ title: 'cool song', artist: 'cool artist', album: 'so so album', genre: 'electro-pop-punk-reggae' })
       playlist.songs.push(song._id)
       user1.playlists.push(playlist._id)
@@ -198,7 +198,7 @@ describe('Test suite for the /playlists routes on our api', () => {
 
       const response = await request(app)
         .post(`/playlists/${playlist._id}/clone/${user2._id}`)
-        .set('Authorization', `Bearer ${token2}`)
+        .set('Authorization', `Bearer ${token}`)
 
       let newPlaylist = response.body.clonePlaylist  
       expect(response.statusCode).toBe(200)
@@ -211,12 +211,11 @@ describe('Test suite for the /playlists routes on our api', () => {
       expect(response.body.cloningUser.playlists).toContain(`${newPlaylist._id}`)
     })
 
-    test(`It should fail to clone an existing playlist and add it to the user's playlists due to authorization`, async () => {
+    test(`It should fail to clone an existing playlist and add it to the user's playlists due to privacy setting`, async () => {
       const user1 = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaulpaul' })
       const user2 = new User({ name: 'Other guy', email: 'coolguy@coolguy.cool', password: "doyouthinkimcool" })
-      const user3 = new User({ name: 'Other guy2', email: 'coolguy@coolguy.cool2', password: "doyouthinkimcool2" })
-      const token2 = await user3.generateAuthToken()
-      const playlist = new Playlist({ title: 'Best playlist', user: user1._id })
+      const token = await user2.generateAuthToken()
+      const playlist = new Playlist({ title: 'Best playlist', user: user1._id, public: false })
       const song = new Song({ title: 'cool song', artist: 'cool artist', album: 'so so album', genre: 'electro-pop-punk-reggae' })
       playlist.songs.push(song._id)
       user1.playlists.push(playlist._id)
@@ -227,9 +226,9 @@ describe('Test suite for the /playlists routes on our api', () => {
 
       const response = await request(app)
         .post(`/playlists/${playlist._id}/clone/${user2._id}`)
-        .set('Authorization', `Bearer ${token2}`)
+        .set('Authorization', `Bearer ${token}`)
 
-      expect(response.statusCode).toBe(401)
+      expect(response.statusCode).toBe(400)
       expect(user2.playlists).toEqual([])
     })
 
@@ -361,9 +360,9 @@ describe('Test suite for the /playlists routes on our api', () => {
     })
 
     test('it should get an owned playlist by id', async () => {
-        const user = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaulpaul', public: true })
+        const user = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaulpaul' })
         const token = await user.generateAuthToken()
-        const playlist = new Playlist({ title: 'Bangers Only', user: `${user._id}` })
+        const playlist = new Playlist({ title: 'Bangers Only', user: user._id })
         await user.save()
         await playlist.save()
 
@@ -376,22 +375,38 @@ describe('Test suite for the /playlists routes on our api', () => {
         expect(response.body.user).toEqual(`${user._id}`)
     })
 
-    //COME BACK to check with public and not owned as well no public and not owned
+    test('it should get an unowned public playlist by id', async () => {
+      const user1 = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaulpaul' })
+      const user2 = new User({ name: 'Paul2', email: 'paul@paul.paul2', password: 'paulpaulpaul2' })
+      const token = await user2.generateAuthToken()
+      const playlist = new Playlist({ title: 'Bangers Only', user: user1._id, public: true })
+      await user1.save()
+      await user2.save()
+      await playlist.save()
 
-  // test('it should faill to get a playlist by id because of privacy setting on playlist', async () => {
-  //   const user1 = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaulpaul' })
-  //   const user2 = new User({ name: 'Paul2', email: 'paul@paul.paul2', password: 'paulpaulpaul2' })
-  //   const token = await user2.generateAuthToken()
-  //   const playlist = new Playlist({ title: 'Bangers Only', user: `${user1._id}` })
-  //   await user1.save()
-  //   user2.save()
-  //   await playlist.save()
+      const response = await request(app)
+        .get(`/playlists/search/${user2._id}/${playlist._id}`)
+        .set('Authorization', `Bearer ${token}`)
 
-  //   const response = await request(app)
-  //     .get(`/playlists/search/${user1._id}/${playlist._id}`)
-  //     .set('Authorization', `Bearer ${token}`)
+      expect(response.statusCode).toBe(200)
+      expect(response.body.title).toEqual('Bangers Only')
+      expect(response.body.user).toEqual(`${user1._id}`)
+    })
 
-  //   expect(response.statusCode).toBe(400)
-  //   expect(response.body.message).toEqual('playlist is set to private')
-  // })
+  test('it should faill to get a playlist by id because of privacy setting on playlist', async () => {
+    const user1 = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaulpaul' })
+    const user2 = new User({ name: 'Paul2', email: 'paul@paul.paul2', password: 'paulpaulpaul2' })
+    const token = await user2.generateAuthToken()
+    const playlist = new Playlist({ title: 'Bangers Only', user: user1._id, public: false })
+    await user1.save()
+    await user2.save()
+    await playlist.save()
+
+    const response = await request(app)
+      .get(`/playlists/search/${user2._id}/${playlist._id}`)
+      .set('Authorization', `Bearer ${token}`)
+
+    expect(response.statusCode).toBe(400)
+    expect(response.body.message).toEqual('playlist is set to private')
+  })
 })

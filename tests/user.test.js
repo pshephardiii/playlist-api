@@ -19,6 +19,10 @@ afterAll( async () => {
 
 describe('Test suite for the /users routes on our api', () => {
 
+
+  // POSITIVE TEST CASES
+
+
   test('It should index all users', async () => {
     const user1 = new User ({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaul' })
     const user2 = new User ({ name: 'Paul', email: 'paul@joe.joe', password: 'paulpaul' })
@@ -83,24 +87,6 @@ describe('Test suite for the /users routes on our api', () => {
     expect(response.body.user2.contacts).toContain(`${user1._id}`)
   })
 
-  test('It should fail to associate two users as contacts due to authorization', async () => {
-    const user1 = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaul' })
-    const user2 = new User({ name: 'Paul', email: 'paul@paul.paul2', password: 'paulpaul' })
-    const user3 = new User({ name: 'Paul', email: 'paul@paul.paul3', password: 'paulpaul' })
-    const token = await user3.generateAuthToken()
-    await user1.save()
-    await user2.save()
-    await user3.save()
-
-    const response = await request(app)
-      .post(`/users/contacts/${user1._id}/add/${user2._id}`)
-      .set('Authorization', `Bearer ${token}`)
-
-    expect(response.statusCode).toBe(401)
-    expect(user1.contacts).not.toContain(user2._id)
-    expect(user2.contacts).not.toContain(user1._id)
-  })
-
   test(`It should remove two users from each other's contacts arrays`, async () => {
     const user1 = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaul' })
     const token1 = await user1.generateAuthToken()
@@ -126,6 +112,76 @@ describe('Test suite for the /users routes on our api', () => {
       expect(response.body.user2.contacts).not.toContain(`${user1._id}`)
   })
 
+  test('It should update a user', async () => {
+    const user = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaulpaul' })
+    const token = await user.generateAuthToken()
+    await user.save()
+
+    const response = await request(app)
+      .put(`/users/${user._id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'Luap', email: 'luap@luap.luap' })
+
+    expect(response.statusCode).toBe(200)
+    expect(response.body.name).toEqual('Luap')
+    expect(response.body.email).toEqual('luap@luap.luap')
+  })
+
+  test('It should delete a user', async () => {
+    const user = new User({ name: 'Paul', email: 'paul@.paul.paul', password: 'paulpaulpaul' })
+    const token = await user.generateAuthToken()
+    await user.save()
+
+    const response = await request(app)
+      .delete(`/users/${user._id}`)
+      .set('Authorization', `Bearer ${token}`)
+
+    let allUsers = await User.find({})  
+    expect(response.statusCode).toBe(200)
+    expect(response.body.message).toEqual('User deleted')
+    expect(allUsers).not.toContain(user)
+  })
+
+  test('It should show a specific user', async () => {
+    const user1 = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaul' })
+    const user2 = new User({ name: 'Paul2', email: 'paul@paul.paul2', password: 'paulpaul2' })
+    const token = await user1.generateAuthToken()
+    await user1.save()
+    await user2.save()
+
+    const response = await request(app)
+      .get(`/users/${user2._id}`)
+      .set('Authorization', `Bearer ${token}`)
+  
+    expect(response.statusCode).toBe(200)
+    expect(response.body.name).toEqual('Paul2')
+    expect(response.body.email).toEqual('paul@paul.paul2')
+  })
+
+
+
+  // NEGATIVE TEST CASES
+
+
+
+  test('It should fail to associate two users as contacts due to authorization', async () => {
+    const user1 = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaul' })
+    const user2 = new User({ name: 'Paul', email: 'paul@paul.paul2', password: 'paulpaul' })
+    const user3 = new User({ name: 'Paul', email: 'paul@paul.paul3', password: 'paulpaul' })
+    const token = await user3.generateAuthToken()
+    await user1.save()
+    await user2.save()
+    await user3.save()
+
+    const response = await request(app)
+      .post(`/users/contacts/${user1._id}/add/${user2._id}`)
+      .set('Authorization', `Bearer ${token}`)
+
+    expect(response.statusCode).toBe(401)
+    expect(user1.contacts).not.toContain(user2._id)
+    expect(user2.contacts).not.toContain(user1._id)
+  })
+
   test(`It should fail to remove two users from each other's arrays due to authorization`, async () => {
     const user1 = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaul' })
     const user2 = new User({ name: 'other', email: 'other', password: 'other' })
@@ -147,21 +203,6 @@ describe('Test suite for the /users routes on our api', () => {
     expect(user2.contacts).toContain(user1._id)
   })
 
-  test('It should update a user', async () => {
-    const user = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaulpaul' })
-    const token = await user.generateAuthToken()
-    await user.save()
-
-    const response = await request(app)
-      .put(`/users/${user._id}`)
-      .set('Authorization', `Bearer ${token}`)
-      .send({ name: 'Luap', email: 'luap@luap.luap' })
-
-    expect(response.statusCode).toBe(200)
-    expect(response.body.name).toEqual('Luap')
-    expect(response.body.email).toEqual('luap@luap.luap')
-  })
-
   test('It should fail to update a user due to authorization', async () => {
     const user1 = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaulpaul' })
     const user2 = new User({ name: 'Paul', email: 'paul@paul.paul2', password: 'paulpaulpaul' })
@@ -178,21 +219,6 @@ describe('Test suite for the /users routes on our api', () => {
     expect(user1.name).toEqual('Paul')
   })
 
-  test('It should delete a user', async () => {
-    const user = new User({ name: 'Paul', email: 'paul@.paul.paul', password: 'paulpaulpaul' })
-    const token = await user.generateAuthToken()
-    await user.save()
-
-    const response = await request(app)
-      .delete(`/users/${user._id}`)
-      .set('Authorization', `Bearer ${token}`)
-
-    let allUsers = await User.find({})  
-    expect(response.statusCode).toBe(200)
-    expect(response.body.message).toEqual('User deleted')
-    expect(allUsers).not.toContain(user)
-  })
-
   test('It should fail to delete a user due to authorization', async () => {
     const user1 = new User({ name: 'Paul', email: 'paul@.paul.paul', password: 'paulpaulpaul' })
     const user2 = new User({ name: 'Paul', email: 'paul@.paul.paul2', password: 'paulpaulpaul' })
@@ -204,25 +230,14 @@ describe('Test suite for the /users routes on our api', () => {
     .delete(`/users/${user1._id}`)
     .set('Authorization', `Bearer ${token}`)
 
-    
     expect(response.statusCode).toBe(401)
     expect(user1).toHaveProperty('name')
   })
-
-  test('It should show a specific user', async () => {
-    const user1 = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaul' })
-    const user2 = new User({ name: 'Paul2', email: 'paul@paul.paul2', password: 'paulpaul2' })
-    const token = await user1.generateAuthToken()
-    await user1.save()
-    await user2.save()
-
-    const response = await request(app)
-      .get(`/users/${user2._id}`)
-      .set('Authorization', `Bearer ${token}`)
-  
-    expect(response.statusCode).toBe(200)
-    expect(response.body.name).toEqual('Paul2')
-    expect(response.body.email).toEqual('paul@paul.paul2')
-  })
 })
+
+
+
+
+
+
 

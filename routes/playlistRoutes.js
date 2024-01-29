@@ -10,6 +10,7 @@ router.post('/:playlistId/add/songs/:songId', userController.auth, playlistContr
 router.post('/:playlistId/remove/songs/:songId', userController.auth, playlistController.removeSong)
 router.post('/:searchedPlaylistId/clone/:userId', userController.auth, playlistController.clonePlaylist)
 router.post('/:userId/:foundPlaylistId/comment', userController.auth, playlistController.leaveComment)
+router.post('/share/:playlistId', userController.auth, playlistController.sharePlaylist)
 router.put('/:playlistId', userController.auth, playlistController.updatePlaylist)
 router.delete('/:playlistId/:userId', userController.auth, playlistController.deletePlaylist)
 router.get('/:userId/:searchedPlaylistId', userController.auth, playlistController.showPlaylist)

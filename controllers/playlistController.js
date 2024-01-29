@@ -126,6 +126,20 @@ exports.leaveComment = async (req, res) => {
   }
 }
 
+exports.sharePlaylist = async (req, res) => {
+  try {
+    const playlist = await Playlist.findOne({ _id: req.params.playlistId })
+    const user = await User.findOne({ _id: req.body.userId })
+    playlist.sharedWith.push(user._id)
+    user.playlists.push(playlist._id)
+    await playlist.save()
+    await user.save()
+    res.status(200).json({ playlist, user })
+  } catch (error) {
+    res.status(400).json({ message: error.message })
+  }
+}
+
 exports.updatePlaylist = async (req, res) => {
   try {
     const playlist = await Playlist.findOneAndUpdate({ _id: req.params.playlistId }, req.body, { new: true })

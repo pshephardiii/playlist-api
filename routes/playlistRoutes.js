@@ -5,6 +5,7 @@ const userController = require('../controllers/userController')
 
 router.get('/', userController.auth, playlistController.indexPlaylists)
 router.get('/:userId', userController.auth, playlistController.indexOwnedPlaylists)
+router.get('/shared/:userId', userController.auth, playlistController.indexSharedPlaylists)
 router.post('/', userController.auth, playlistController.createPlaylist)
 router.post('/:playlistId/add/songs/:songId', userController.auth, playlistController.addSong)
 router.post('/:playlistId/remove/songs/:songId', userController.auth, playlistController.removeSong)

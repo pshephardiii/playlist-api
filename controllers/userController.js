@@ -3,9 +3,6 @@ const Playlist = require('../models/playlist')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
-// come back here!
-// CHECK: automated tests need their routes updated and then see if they pass.  If they do, commence to manual testing.  If not, mess with below.
-
 exports.auth = async (req, res, next) => {
   try {
     const token = req.header('Authorization').replace('Bearer ', '')

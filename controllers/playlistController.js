@@ -22,6 +22,16 @@ exports.indexOwnedPlaylists = async (req, res) => {
   }
 }
 
+exports.indexSharedPlaylists = async (req, res) => {
+  try {
+    const user = await User.find({ _id: req.params.id })
+    const playlists = await Playlist.find({ sharedWith: [user._id] })
+    res.status(200).json(playlists)
+  } catch(error) {
+    res.status(400).json({ message: error.message })
+  }
+}
+
 exports.createPlaylist = async (req, res) => {
   try {
     req.body.user = req.user._id
@@ -44,9 +54,9 @@ exports.addSong = async (req, res) => {
     await foundPlaylist.save()
     await foundSong.save()
     res.status(200).json({
-        message: `Successfully added song ${req.params.songId} to playlist ${req.params.playlistId}`,
-        playlist: foundPlaylist,
-        song: foundSong
+      message: `Successfully added song ${req.params.songId} to playlist ${req.params.playlistId}`,
+      playlist: foundPlaylist,
+      song: foundSong
     })
   } catch (error) {
     res.status(400).json({ message: error.message })
@@ -64,9 +74,9 @@ exports.removeSong = async (req, res) => {
     await foundPlaylist.save()
     await foundSong.save()
     res.status(200).json({
-        message: `Successfully removed song ${req.params.songId} from playlist ${req.params.playlistId}`,
-        playlist: foundPlaylist,
-        song: foundSong
+      message: `Successfully removed song ${req.params.songId} from playlist ${req.params.playlistId}`,
+      playlist: foundPlaylist,
+      song: foundSong
     })
   } catch (error) {
     res.status(400).json({ message: error.message })
@@ -74,31 +84,31 @@ exports.removeSong = async (req, res) => {
 }
 
 exports.clonePlaylist = async (req, res) => {
-    try {
-      const existingPlaylist = await Playlist.findOne({ _id: req.params.searchedPlaylistId })
-      const cloningUser = await User.findOne({ _id: req.params.userId })
-      if (existingPlaylist.public === false) {
-        if (`${existingPlaylist.user}` !== `${cloningUser._id}`) {
-          throw new Error('playlist is set to private')
-        }
+  try {
+    const existingPlaylist = await Playlist.findOne({ _id: req.params.searchedPlaylistId })
+    const cloningUser = await User.findOne({ _id: req.params.userId })
+    if (existingPlaylist.public === false) {
+      if (`${existingPlaylist.user}` !== `${cloningUser._id}`) {
+        throw new Error('playlist is set to private')
       }
-      existingPlaylist.cloned.push(cloningUser._id)
-      const existingPlaylistSongs = existingPlaylist.songs.slice()
-      const clonePlaylist = new Playlist({ title: `${existingPlaylist.title}_copy`, user: cloningUser._id, songs: existingPlaylistSongs })
-      cloningUser.playlists.push(clonePlaylist._id)
-      await existingPlaylist.save()
-      await cloningUser.save()
-      await clonePlaylist.save()
-      res.status(200).json({
-        message: `Successfully cloned playlist ${existingPlaylist._id} to user ${cloningUser._id} playlists array`,
-        existingPlaylist: existingPlaylist,
-        cloningUser: cloningUser,
-        clonePlaylist: clonePlaylist
-      })
-    } catch (error) {
-      res.status(400).json({ message: error.message })
     }
+    existingPlaylist.cloned.push(cloningUser._id)
+    const existingPlaylistSongs = existingPlaylist.songs.slice()
+    const clonePlaylist = new Playlist({ title: `${existingPlaylist.title}_copy`, user: cloningUser._id, songs: existingPlaylistSongs })
+    cloningUser.playlists.push(clonePlaylist._id)
+    await existingPlaylist.save()
+    await cloningUser.save()
+    await clonePlaylist.save()
+    res.status(200).json({
+      message: `Successfully cloned playlist ${existingPlaylist._id} to user ${cloningUser._id} playlists array`,
+      existingPlaylist: existingPlaylist,
+      cloningUser: cloningUser,
+      clonePlaylist: clonePlaylist
+    })
+  } catch (error) {
+    res.status(400).json({ message: error.message })
   }
+}
 
 exports.leaveComment = async (req, res) => {
   try {
@@ -117,9 +127,9 @@ exports.leaveComment = async (req, res) => {
     await foundPlaylist.save()
     await commentingUser.save()
     res.status(200).json({
-        comment: newComment,
-        playlist: foundPlaylist,
-        commenter: commentingUser
+      comment: newComment,
+      playlist: foundPlaylist,
+      commenter: commentingUser
     })
   } catch (error) {
     res.status(400).json({ message: error.message })
@@ -163,16 +173,16 @@ exports.deletePlaylist = async (req, res) => {
 }
 
 exports.showPlaylist = async (req, res) => {
-    try {
-      const user = await User.findOne({ _id: req.params.userId })
-      const playlist = await Playlist.findOne({ _id: req.params.searchedPlaylistId })
-      if (playlist.public === false) {
-        if (`${playlist.user}` !== `${user._id}`){
-          throw new Error('playlist is set to private')
-        }
+  try {
+    const user = await User.findOne({ _id: req.params.userId })
+    const playlist = await Playlist.findOne({ _id: req.params.searchedPlaylistId })
+    if (playlist.public === false) {
+      if (`${playlist.user}` !== `${user._id}`){
+        throw new Error('playlist is set to private')
       }
-      res.status(200).json(playlist)
-    } catch (error) {
-      res.status(400).json({ message: error.message })
     }
+    res.status(200).json(playlist)
+  } catch (error) {
+    res.status(400).json({ message: error.message })
   }
+}

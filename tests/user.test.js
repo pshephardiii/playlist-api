@@ -40,10 +40,10 @@ describe('Test suite for the /users routes on our api', () => {
     expect(Array.isArray(response.body)).toBeTruthy()
 
     for(let i = 0; i < response.body.length; i++) {
-        expect(response.body[i]).toHaveProperty('name')
-        expect(response.body[i]).toHaveProperty('email')
-        expect(response.body[i]).toHaveProperty('password')
-      }
+      expect(response.body[i]).toHaveProperty('name')
+      expect(response.body[i]).toHaveProperty('email')
+      expect(response.body[i]).toHaveProperty('password')
+    }
   })
   
   test('It should create a new user in the database', async () => {
@@ -103,13 +103,13 @@ describe('Test suite for the /users routes on our api', () => {
       .post(`/users/contacts/${user1._id}/remove/${user2._id}`)
       .set('Authorization', `Bearer ${token1}`)
 
-      expect(response.statusCode).toBe(200)
-      expect(Array.isArray(response.body.user1.contacts)).toBeTruthy()
-      expect(response.body.message).toEqual(`Successfully disassociated user with id ${user1._id} from user with id ${user2._id}`)
-      expect(response.body.user1.contacts).toContain(`${user3._id}`)
-      expect(response.body.user2.contacts).toContain(`${user3._id}`)
-      expect(response.body.user1.contacts).not.toContain(`${user2._id}`)
-      expect(response.body.user2.contacts).not.toContain(`${user1._id}`)
+    expect(response.statusCode).toBe(200)
+    expect(Array.isArray(response.body.user1.contacts)).toBeTruthy()
+    expect(response.body.message).toEqual(`Successfully disassociated user with id ${user1._id} from user with id ${user2._id}`)
+    expect(response.body.user1.contacts).toContain(`${user3._id}`)
+    expect(response.body.user2.contacts).toContain(`${user3._id}`)
+    expect(response.body.user1.contacts).not.toContain(`${user2._id}`)
+    expect(response.body.user2.contacts).not.toContain(`${user1._id}`)
   })
 
   test('It should update a user', async () => {

@@ -113,7 +113,8 @@ describe('Test suite for the /playlists routes on our api', () => {
     await song1.save()
 
     const response = await request(app)
-      .post(`/playlists/${playlist1._id}/add/songs/${song1._id}`)
+      .post(`/playlists/${playlist1._id}/add`)
+      .send({ songId: song1._id })
       .set('Authorization', `Bearer ${token}`)
     
     expect(response.statusCode).toBe(200)
@@ -139,7 +140,8 @@ describe('Test suite for the /playlists routes on our api', () => {
     await song3.save()
 
     const response = await request(app)
-      .post(`/playlists/${playlist1._id}/remove/songs/${song1._id}`)
+      .post(`/playlists/${playlist1._id}/remove`)
+      .send({ songId: song1._id })
       .set('Authorization', `Bearer ${token}`)
     
     expect(response.statusCode).toBe(200)
@@ -195,7 +197,7 @@ describe('Test suite for the /playlists routes on our api', () => {
     await playlist.save()
 
     const response = await request(app)
-      .delete(`/playlists/${playlist._id}/${user._id}`)
+      .delete(`/playlists/${user._id}/${playlist._id}`)
       .set('Authorization', `Bearer ${token}`)
 
     let allPlaylists = await Playlist.find({})
@@ -343,7 +345,8 @@ describe('Test suite for the /playlists routes on our api', () => {
     await song1.save()
 
     const response = await request(app)
-      .post(`/playlists/${playlist1._id}/add/songs/${song1._id}`)
+      .post(`/playlists/${playlist1._id}/add`)
+      .send({ songId: song1._id })
       .set('Authorization', `Bearer ${token}`)
 
     expect(response.statusCode).toBe(200)
@@ -372,7 +375,8 @@ describe('Test suite for the /playlists routes on our api', () => {
     await song3.save()
 
     const response = await request(app)
-      .post(`/playlists/${playlist1._id}/remove/songs/${song1._id}`)
+      .post(`/playlists/${playlist1._id}/remove`)
+      .send({ songId: song1._id })
       .set('Authorization', `Bearer ${token}`)
 
     expect(response.statusCode).toBe(200)
@@ -400,7 +404,8 @@ describe('Test suite for the /playlists routes on our api', () => {
     await song1.save()
 
     const response = await request(app)
-      .post(`/playlists/${playlist1._id}/add/songs/${song1._id}`)
+      .post(`/playlists/${playlist1._id}/add`)
+      .send({ songId: song1._id })
       .set('Authorization', `Bearer ${token}`)
 
     expect(response.statusCode).toBe(401)
@@ -426,7 +431,8 @@ describe('Test suite for the /playlists routes on our api', () => {
     await song3.save()
 
     const response = await request(app)
-      .post(`/playlists/${playlist1._id}/remove/songs/${song1._id}`)
+      .post(`/playlists/${playlist1._id}/remove`)
+      .send({ songId: song1._id })
       .set('Authorization', `Bearer ${token}`)
 
     expect(response.statusCode).toBe(401)
@@ -494,7 +500,7 @@ describe('Test suite for the /playlists routes on our api', () => {
     expect(playlist.title).toEqual('Bangers Only')
   })
 
-  test('It should fail to delete a user due to lack of authorization', async () => {
+  test('It should fail to delete a playlist due to lack of authorization', async () => {
     const user1 = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaulpaul' })
     const user2 = new User({ name: 'otherguy', email: 'coolguy', password: 'whatever' })
     const token = await user2.generateAuthToken()
@@ -505,7 +511,7 @@ describe('Test suite for the /playlists routes on our api', () => {
     await playlist.save()
 
     const response = await request(app)
-      .delete(`/playlists/${playlist._id}/${user2._id}`)
+      .delete(`/playlists/${user2._id}/${playlist._id}`)
       .set('Authorization', `Bearer ${token}`)
 
       let allPlaylists = await Playlist.find({})

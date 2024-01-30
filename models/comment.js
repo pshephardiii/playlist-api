@@ -1,12 +1,12 @@
 const mongoose = require('mongoose')
 
 const commentSchema = new mongoose.Schema ({
-    content: { type: String, required: true },
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    playlist: { type: mongoose.Schema.Types.ObjectId, ref: 'Playlist' },
-    likes: Number
-  })
+  content: { type: String, required: true },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  playlist: { type: mongoose.Schema.Types.ObjectId, ref: 'Playlist' },
+  likes: Number
+})
   
-  const Comment = mongoose.model('Comment', commentSchema)
+const Comment = mongoose.model('Comment', commentSchema)
   
-  module.exports = Comment
+module.exports = Comment

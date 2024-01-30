@@ -7,5 +7,5 @@ mongoose.connect(process.env.MONGO_URI)
 mongoose.connection.once('open', () => console.log('We are connected to Mongo'))
 
 app.listen(PORT, () => {
-    console.log(`Port ${PORT} is working`)
+  console.log(`Port ${PORT} is working`)
 })

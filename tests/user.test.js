@@ -45,6 +45,36 @@ describe('Test suite for the /users routes on our api', () => {
       expect(response.body[i]).toHaveProperty('password')
     }
   })
+
+  test(`It should index all of a user's contacts`, async () => {
+    const user1 = new User ({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaul' })
+    const user2 = new User ({ name: 'Paul', email: 'paul@joe.joe', password: 'paulpaul' })
+    const user3 = new User ({ name: 'Paul', email: 'paul@len.len', password: 'paulpaul' })
+    const user4 = new User ({ name: 'NotAContact', email: 'rando', password: 'yay', contacts: [] })
+    user1.contacts.push(user2, user3)
+    user2.contacts.push(user1, user3)
+    user3.contacts.push(user1, user2)
+    const token = await user1.generateAuthToken()
+    await user1.save()
+    await user2.save()
+    await user3.save()
+    await user4.save()
+
+    const response = await request(app)
+      .get(`/users/contacts/${user1._id}`)
+      .set('Authorization', `Bearer ${token}`)
+
+    expect(response.statusCode).toBe(200)
+    expect(Array.isArray(response.body)).toBeTruthy()
+
+    for(let i = 0; i < response.body.length; i++) {
+      expect(response.body[i]).toHaveProperty('name')
+      expect(response.body[i]).toHaveProperty('email')
+      expect(response.body[i]).toHaveProperty('password')
+      expect(response.body[i].contacts).toContain(`${user1._id}`)
+      expect(response.body[i]).not.toEqual(user4)
+    }
+  })
   
   test('It should create a new user in the database', async () => {
     const response = await request(app).post('/users').send({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaulpaul' })

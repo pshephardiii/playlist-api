@@ -1,6 +1,6 @@
--- Playlist API --
+## Playlist API 
 
-USER STORIES:
+## USER STORIES:
 
 (a) "As a user, I should be able to click on a navigation link to access a specific playlist."
 
@@ -18,7 +18,7 @@ USER STORIES:
 
 ----
 
-APP INSTALLATION INSTRUCTIONS:
+## APP INSTALLATION INSTRUCTIONS:
 
 *** Global installations needed: node.js mongodb ***
 
@@ -46,32 +46,14 @@ APP INSTALLATION INSTRUCTIONS:
 
 ----
 
-POSTMAN MANUAL TESTING INSTRUCTIONS:
-
-I. Run the app in dev mode
-
-II. Use the same PORT that's running the app
-
-III. The URL and request type should be set according to the route/api endpoint you'd like to test
-
-IV. In "Body", select "raw" and navigate to the dropdown menu on the right to select "JSON"
-
-V. To begin, it'd be wise to create an instance of a model (or more) to test if you can then successfully login that user
-
-VI. Copy token and try to update/delete user without authorization
-
-VII. Paste token under Authorization with type Bearer Token then try to update/delete user
-
-VIII. Check CRUD operations of another model
-
-----
-
-ADDITIONAL INSTRUCTIONS:
+## ADDITIONAL INSTRUCTIONS:
 
 To run automatic tests: npm run test
 
 To start app without dev mode: npm run start
 
 ----
+
+## Model Attributions Diagram
 
 ![Model Attributions Diagram](https://i.imgur.com/OzQmbtm.png)

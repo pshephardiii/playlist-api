@@ -74,3 +74,4 @@ To start app without dev mode: npm run start
 
 ----
 
+![Model Attributions Diagram](https://i.imgur.com/OzQmbtm.png)

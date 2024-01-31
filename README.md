@@ -1,4 +1,4 @@
-### Playlist API 
+# Playlist API 
 
 ## User Stories:
 
@@ -30,27 +30,27 @@
 
 1. Make new directory for project and move into that directory
 
-2. Git clone repository into directory: git clone *SSH-key*
+2. Git clone repository into directory: ``` git clone *SSH-key* ```
 
-3. Add .gitignore and .env files with following command: touch .gitignore .env
+3. Add .gitignore and .env files with following command: ``` touch .gitignore .env ```
 
 4. Add MONGO URI string with desired database name and a sha256 hash as SECRET in .env file
 
-5. In repository, run: npm init -y
+5. In repository, run: ``` npm init -y ```
 
-6. Install dependencies: npm install bcrypt dotenv express jsonwebtoken mongoose
+6. Install dependencies: ``` npm install bcrypt dotenv express jsonwebtoken mongoose ```
 
-7. Install dev dependencies: npm install jest supertest morgan mongodb-memory-server nodemon --save-dev
+7. Install dev dependencies: ``` npm install jest supertest morgan mongodb-memory-server nodemon --save-dev ```
 
-8. To start app in development mode, use command: npm run dev
+8. To start app in development mode, use command: ``` npm run dev ```
 
 ---
 
 ## Additional Instructions:
 
-To run automatic tests: npm run test
+To run automatic tests: ``` npm run test ```
 
-To start app without dev mode: npm run start
+To start app without dev mode: ``` npm run start ```
 
 ---
 

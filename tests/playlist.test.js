@@ -266,9 +266,7 @@ describe('Test suite for the /playlists routes on our api', () => {
     const response = await request(app)
       .post(`/playlists/${user._id}/${playlist._id}/comment`)
       .send({
-        commenterId: user._id,
-        foundPlaylistId: playlist._id,
-        commentBody: 'what a great playlist!'
+        content: 'what a great playlist!'
       })
       .set('Authorization', `Bearer ${token}`)
 
@@ -450,8 +448,6 @@ describe('Test suite for the /playlists routes on our api', () => {
     const response = await request(app)
       .post(`/playlists/${user1._id}/${playlist._id}/comment`)
       .send({
-        commenterId: user1._id,
-        playlistId: playlist._id,
         commentBody: 'what a great playlist!'
       })
       .set('Authorization', `Bearer ${token}`)
@@ -558,9 +554,7 @@ describe('Test suite for the /playlists routes on our api', () => {
     const response = await request(app)
       .post(`/playlists/${user1._id}/${playlist._id}/comment`)
       .send({
-        commenterId: user1._id,
-        foundPlaylistId: playlist._id,
-        commentBody: 'what a great playlist!'
+        content: 'what a great playlist!'
       })
       .set('Authorization', `Bearer ${token}`)
   

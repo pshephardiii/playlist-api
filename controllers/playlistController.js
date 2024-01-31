@@ -120,16 +120,16 @@ exports.clonePlaylist = async (req, res) => {
 
 exports.leaveComment = async (req, res) => {
   try {
-    const commentingUser = await User.findOne({ _id: req.body.commenterId })
-    if (!commentingUser) throw new Error(`Could not locate user ${req.body.commenterId}`)
-    const foundPlaylist = await Playlist.findOne({ _id: req.body.foundPlaylistId })
-    if (!commentingUser) throw new Error(`Could not locate playlist ${req.body.foundPlaylistId}`)
+    const commentingUser = await User.findOne({ _id: req.params.userId })
+    if (!commentingUser) throw new Error(`Could not locate user ${req.params.userId}`)
+    const foundPlaylist = await Playlist.findOne({ _id: req.params.foundPlaylistId })
+    if (!commentingUser) throw new Error(`Could not locate playlist ${req.params.foundPlaylistId}`)
     if (foundPlaylist.public === false) {
       if (`${foundPlaylist.user}` !== `${commentingUser._id}`) {
         throw new Error('playlist is set to private')
       }
     }
-    const newComment = new Comment({ content: req.body.commentBody, user: commentingUser._id, playlist: foundPlaylist._id })
+    const newComment = new Comment({ content: req.body.content, user: commentingUser._id, playlist: foundPlaylist._id })
     foundPlaylist.comments.push(newComment._id)
     newComment.playlist = foundPlaylist._id
     commentingUser.comments.push(newComment._id)

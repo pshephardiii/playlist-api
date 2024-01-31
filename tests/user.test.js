@@ -61,7 +61,7 @@ describe('Test suite for the /users routes on our api', () => {
     await user4.save()
 
     const response = await request(app)
-      .get(`/users/contacts/${user1._id}`)
+      .get(`/users/${user1._id}/contacts`)
       .set('Authorization', `Bearer ${token}`)
 
     expect(response.statusCode).toBe(200)
@@ -107,7 +107,7 @@ describe('Test suite for the /users routes on our api', () => {
     await user2.save()
         
     const response = await request(app)
-      .post(`/users/contacts/${user1._id}/add/${user2._id}`)
+      .post(`/users/${user1._id}/contacts/add/${user2._id}`)
       .set('Authorization', `Bearer ${token1}`)
 
     expect(response.statusCode).toBe(200)
@@ -130,7 +130,7 @@ describe('Test suite for the /users routes on our api', () => {
     await user3.save()
 
     const response = await request(app)
-      .post(`/users/contacts/${user1._id}/remove/${user2._id}`)
+      .post(`/users/${user1._id}/contacts/remove/${user2._id}`)
       .set('Authorization', `Bearer ${token1}`)
 
     expect(response.statusCode).toBe(200)
@@ -204,7 +204,7 @@ describe('Test suite for the /users routes on our api', () => {
     await user3.save()
 
     const response = await request(app)
-      .post(`/users/contacts/${user1._id}/add/${user2._id}`)
+      .post(`/users/${user1._id}/contacts/add/${user2._id}`)
       .set('Authorization', `Bearer ${token}`)
 
     expect(response.statusCode).toBe(401)
@@ -225,7 +225,7 @@ describe('Test suite for the /users routes on our api', () => {
     await user3.save()
 
     const response = await request(app)
-      .post(`/users/contacts/${user1._id}/remove/${user2._id}`)
+      .post(`/users/${user1._id}/contacts/remove/${user2._id}`)
       .set('Authorization', `Bearer ${token3}`)
 
     expect(response.statusCode).toBe(401)
@@ -272,7 +272,7 @@ describe('Test suite for the /users routes on our api', () => {
     await user2.save()
 
     const response = await request(app)
-      .post(`/users/contacts/${user1._id}/remove/${user2._id}`)
+      .post(`/users/${user1._id}/contacts/remove/${user2._id}`)
       .set('Authorization', `Bearer ${token}`)
     
     expect(response.statusCode).toBe(400)

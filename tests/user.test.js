@@ -257,11 +257,26 @@ describe('Test suite for the /users routes on our api', () => {
     await user2.save()
 
     const response = await request(app)
-    .delete(`/users/${user1._id}`)
-    .set('Authorization', `Bearer ${token}`)
+      .delete(`/users/${user1._id}`)
+      .set('Authorization', `Bearer ${token}`)
 
     expect(response.statusCode).toBe(401)
     expect(user1).toHaveProperty('name')
+  })
+
+  test('It should throw an error due to users not being contacts', async () => {
+    const user1 = new User({ name: 'Paul', email: 'paul@.paul.paul', password: 'paulpaulpaul', contacts: [] })
+    const user2 = new User({ name: 'Paul2', email: 'paul@.paul.paul2', password: 'paulpaulpaul2', contacts: [] })
+    const token = await user1.generateAuthToken()
+    await user1.save()
+    await user2.save()
+
+    const response = await request(app)
+      .post(`/users/contacts/${user1._id}/remove/${user2._id}`)
+      .set('Authorization', `Bearer ${token}`)
+    
+    expect(response.statusCode).toBe(400)
+    expect(response.body.message).toEqual(`User ${user2._id} is not a saved as a contact with ${user1._id}`)
   })
 })
 

@@ -57,6 +57,7 @@ exports.indexSongsByGenre = async (req, res) => {
 exports.showSong = async (req, res) => {
   try {
     const song = await Song.findOne({ _id: req.params.id })
+    if (!song) throw new Error(`Cannot locate song ${req.params.id}`)
     res.status(200).json(song)
   } catch (error) {
     res.status(400).json({ message: error.message })

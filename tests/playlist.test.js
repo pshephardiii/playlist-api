@@ -5,7 +5,6 @@ const User = require('../models/user')
 const Playlist = require('../models/playlist')
 const mongoose = require('mongoose')
 const Song = require('../models/song')
-const Comment = require('../models/comment')
 const server = app.listen(3001, () => console.log('Testing on Port 3001'))
 let mongoServer 
 
@@ -113,7 +112,7 @@ describe('Test suite for the /playlists routes on our api', () => {
     await song1.save()
 
     const response = await request(app)
-      .post(`/playlists/${playlist1._id}/add`)
+      .post(`/playlists/${playlist1._id}/songs/add`)
       .send({ songId: song1._id })
       .set('Authorization', `Bearer ${token}`)
     
@@ -140,7 +139,7 @@ describe('Test suite for the /playlists routes on our api', () => {
     await song3.save()
 
     const response = await request(app)
-      .post(`/playlists/${playlist1._id}/remove`)
+      .post(`/playlists/${playlist1._id}/songs/remove`)
       .send({ songId: song1._id })
       .set('Authorization', `Bearer ${token}`)
     
@@ -161,7 +160,7 @@ describe('Test suite for the /playlists routes on our api', () => {
     await playlist.save()
 
     const response = await request(app)
-      .post(`/playlists/share/${playlist._id}`)
+      .post(`/playlists/${playlist._id}/share`)
       .send({ userId: user2._id })
       .set('Authorization', `Bearer ${token}`)
 
@@ -243,7 +242,7 @@ describe('Test suite for the /playlists routes on our api', () => {
     await song.save()
 
     const response = await request(app)
-      .post(`/playlists/${playlist._id}/clone/${user2._id}`)
+      .post(`/playlists/${user2._id}/${playlist._id}/clone`)
       .set('Authorization', `Bearer ${token}`)
 
     let newPlaylist = response.body.clonePlaylist  
@@ -319,7 +318,7 @@ describe('Test suite for the /playlists routes on our api', () => {
     await playlist2.save()
 
     const response = await request(app)
-      .get(`/playlists/shared/${user1._id}`)
+      .get(`/playlists/${user1._id}/shared`)
       .set('Authorization', `Bearer ${token}`)
 
     expect(response.statusCode).toBe(200)
@@ -345,7 +344,7 @@ describe('Test suite for the /playlists routes on our api', () => {
     await song1.save()
 
     const response = await request(app)
-      .post(`/playlists/${playlist1._id}/add`)
+      .post(`/playlists/${playlist1._id}/songs/add`)
       .send({ songId: song1._id })
       .set('Authorization', `Bearer ${token}`)
 
@@ -375,7 +374,7 @@ describe('Test suite for the /playlists routes on our api', () => {
     await song3.save()
 
     const response = await request(app)
-      .post(`/playlists/${playlist1._id}/remove`)
+      .post(`/playlists/${playlist1._id}/songs/remove`)
       .send({ songId: song1._id })
       .set('Authorization', `Bearer ${token}`)
 
@@ -404,7 +403,7 @@ describe('Test suite for the /playlists routes on our api', () => {
     await song1.save()
 
     const response = await request(app)
-      .post(`/playlists/${playlist1._id}/add`)
+      .post(`/playlists/${playlist1._id}/songs/add`)
       .send({ songId: song1._id })
       .set('Authorization', `Bearer ${token}`)
 
@@ -431,7 +430,7 @@ describe('Test suite for the /playlists routes on our api', () => {
     await song3.save()
 
     const response = await request(app)
-      .post(`/playlists/${playlist1._id}/remove`)
+      .post(`/playlists/${playlist1._id}/songs/remove`)
       .send({ songId: song1._id })
       .set('Authorization', `Bearer ${token}`)
 
@@ -472,7 +471,7 @@ describe('Test suite for the /playlists routes on our api', () => {
     await playlist.save()
 
     const response = await request(app)
-    .post(`/playlists/share/${playlist._id}`)
+    .post(`/playlists/${playlist._id}/share`)
     .send({ userId: user2._id })
     .set('Authorization', `Bearer ${token}`)
 
@@ -540,7 +539,7 @@ describe('Test suite for the /playlists routes on our api', () => {
     await song.save()
 
     const response = await request(app)
-    .post(`/playlists/${playlist._id}/clone/${user2._id}`)
+    .post(`/playlists/${user2._id}/${playlist._id}/clone`)
     .set('Authorization', `Bearer ${token}`)
 
     expect(response.statusCode).toBe(400)
@@ -586,4 +585,30 @@ describe('Test suite for the /playlists routes on our api', () => {
     expect(response.statusCode).toBe(400)
     expect(response.body.message).toEqual('playlist is set to private')
   })
+
+
+
+  // NEGATIVE TEST CASES: MISC.
+
+
+
+  test('it should fail to remove song from playlist because the song is already not on the playlist', async () => {
+    const user = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaulpaul' })
+    const playlist = new Playlist({ title: 'Bangers Only', user: user._id, songs: [] })
+    const song = new Song({ title: 'cool song', artist: 'cool artist', album: 'so so album', genre: 'electro-pop-punk-reggae' })
+    user.playlists.push(playlist)
+    const token = await user.generateAuthToken()
+    await user.save()
+    await playlist.save()
+    await song.save()
+
+    const response = await request(app)
+      .post(`/playlists/${playlist._id}/songs/remove`)
+      .send({ songId: song._id })
+      .set('Authorization', `Bearer ${token}`)
+
+    expect(response.statusCode).toBe(400)
+    expect(response.body.message).toEqual(`Playlist ${playlist._id} does not include song ${song._id}`)
+  })
 })
+

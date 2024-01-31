@@ -1,6 +1,5 @@
 const mongoose = require('mongoose')
 
-
 const playlistSchema = new mongoose.Schema ({
   title: { type: String, required: true },
   public: { type: Boolean, default: false },

@@ -1,5 +1,4 @@
 const User = require('../models/user')
-const Playlist = require('../models/playlist')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
@@ -9,7 +8,7 @@ exports.auth = async (req, res, next) => {
     const data = jwt.verify(token, process.env.SECRET)
     const user = await User.findOne({ _id: data._id })
     if (!user) {
-      throw new Error()
+      throw new Error(`Could not locate user ${data._id}`)
     }
     req.user = user
     if(req.params.userId){
@@ -24,7 +23,7 @@ exports.auth = async (req, res, next) => {
     }
     next()
   } catch (error) {
-    res.status(401).send('Not authorized')
+    res.status(401).json({ message: error.message })
   }
 }
 
@@ -40,6 +39,7 @@ exports.indexUsers = async (req, res) => {
 exports.indexContacts = async (req, res) => {
   try {
     const user = await User.findOne({ _id: req.params.userId })
+    if (!user) throw new Error(`Could not locate user ${req.params.userId}`)
     const foundContacts = await User.find({ contacts: [user._id ]})
     res.status(200).json(foundContacts)
   } catch (error) {
@@ -75,7 +75,9 @@ exports.loginUser = async (req, res) => {
 exports.addContact = async (req, res) => {
   try{
     const user1 = await User.findOne({ _id: req.params.userId })
+    if (!user1) throw new Error(`Could not find user ${req.params.userId}`)
     const user2 = await User.findOne({ _id: req.params.contactId })
+    if (!user2) throw new Error(`Could not find user ${req.params.contactId}`)
     user1.contacts.push(user2._id)
     user2.contacts.push(user1._id)
     await user1.save()
@@ -93,9 +95,13 @@ exports.addContact = async (req, res) => {
 exports.removeContact = async (req, res) => {
   try {
     const user1 = await User.findOne({ _id: req.params.userId })
+    if (!user1) throw new Error(`Could not find user ${req.params.userId}`)
     const user2 = await User.findOne({ _id: req.params.contactId })
+    if (!user2) throw new Error(`Could not find user ${req.params.contactId}`)
     const userIndex1 = user1.contacts.indexOf(user2._id)
+    if (!(user1.contacts.includes(user2._id))) throw new Error(`User ${user2._id} is not a saved as a contact with ${user1._id}`)
     const userIndex2 = user2.contacts.indexOf(user1._id)
+    if (!(user2.contacts.includes(user1._id))) throw new Error(`User ${user1._id} is a saved as a contact with ${user2._id}`)
     user1.contacts.splice(userIndex1, 1)
     user2.contacts.splice(userIndex2, 1)
     await user1.save()
@@ -114,6 +120,7 @@ exports.updateUser = async (req, res) => {
   try{
     const updates = Object.keys(req.body)
     const user = await User.findOne({ _id: req.params.userId })
+    if (!user) throw new Error(`Could not locate user ${req.params.userId}`)
     updates.forEach(update => user[update] = req.body[update])
     await user.save()
     res.status(200).json(user)
@@ -134,6 +141,7 @@ exports.deleteUser = async (req, res) => {
 exports.showUser = async (req, res) => {
   try {
     const foundUser = await User.findOne({ _id: req.params.id })
+    if (!foundUser) throw new Error(`Could not locate user ${req.params.id}`)
     res.status(200).json(foundUser)
   } catch (error) {
     res.status(400).json({ message: error.message })

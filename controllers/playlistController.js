@@ -36,6 +36,7 @@ exports.createPlaylist = async (req, res) => {
   try {
     req.body.user = req.user._id
     const foundUser = await User.findOne({ _id: req.user._id })
+    if (!foundUser) throw new Error(`Could not locate user ${req.user._id}`)
     const playlist = await Playlist.create(req.body)
     foundUser.playlists.push(playlist._id)
     await foundUser.save()
@@ -48,7 +49,9 @@ exports.createPlaylist = async (req, res) => {
 exports.addSong = async (req, res) => {
   try {
     const foundPlaylist = await Playlist.findOne({ _id: req.params.playlistId })
+    if (!foundPlaylist) throw new Error(`Could not locate playlist ${req.params.playlistId}`)
     const foundSong = await Song.findOne({ _id: req.body.songId })
+    if (!foundSong) throw new Error (`Could not locate song ${req.body.songId}`)
     foundPlaylist.songs.push(foundSong._id)
     foundSong.playlists.push(foundPlaylist._id)
     await foundPlaylist.save()
@@ -66,8 +69,11 @@ exports.addSong = async (req, res) => {
 exports.removeSong = async (req, res) => {
   try {
     const foundPlaylist = await Playlist.findOne({ _id: req.params.playlistId })
+    if (!foundPlaylist) throw new Error(`Could not locate playlist ${req.params.playlistId}`)
     const foundSong = await Song.findOne({ _id: req.body.songId })
+    if (!foundSong) throw new Error(`Could not locate song ${req.body.songId}`)
     const songIndex = foundPlaylist.songs.indexOf(foundSong._id)
+    if (!(foundPlaylist.songs.includes(foundSong._id))) throw new Error(`Playlist ${foundPlaylist._id} does not include song ${foundSong._id}`)
     const playlistIndex = foundSong.playlists.indexOf(foundPlaylist._id)
     foundPlaylist.songs.splice(songIndex, 1)
     foundSong.playlists.splice(playlistIndex, 1)
@@ -85,11 +91,13 @@ exports.removeSong = async (req, res) => {
 
 exports.clonePlaylist = async (req, res) => {
   try {
-    const existingPlaylist = await Playlist.findOne({ _id: req.params.searchedPlaylistId })
+    const existingPlaylist = await Playlist.findOne({ _id: req.params.foundPlaylistId })
+    if (!existingPlaylist) throw new Error(`Could not locate playlist ${req.params.foundPlaylistId}`)
     const cloningUser = await User.findOne({ _id: req.params.userId })
+    if (!cloningUser) throw new Error(`Could not locate user ${req.params.userId}`)
     if (existingPlaylist.public === false) {
       if (`${existingPlaylist.user}` !== `${cloningUser._id}`) {
-        throw new Error('playlist is set to private')
+        throw new Error(`playlist ${req.params.foundPlaylistId} is set to private`)
       }
     }
     existingPlaylist.cloned.push(cloningUser._id)
@@ -113,7 +121,9 @@ exports.clonePlaylist = async (req, res) => {
 exports.leaveComment = async (req, res) => {
   try {
     const commentingUser = await User.findOne({ _id: req.body.commenterId })
+    if (!commentingUser) throw new Error(`Could not locate user ${req.body.commenterId}`)
     const foundPlaylist = await Playlist.findOne({ _id: req.body.foundPlaylistId })
+    if (!commentingUser) throw new Error(`Could not locate playlist ${req.body.foundPlaylistId}`)
     if (foundPlaylist.public === false) {
       if (`${foundPlaylist.user}` !== `${commentingUser._id}`) {
         throw new Error('playlist is set to private')
@@ -139,7 +149,9 @@ exports.leaveComment = async (req, res) => {
 exports.sharePlaylist = async (req, res) => {
   try {
     const playlist = await Playlist.findOne({ _id: req.params.playlistId })
+    if (!playlist) throw new Error(`Could not locate playlist ${req.params.playlistId}`)
     const user = await User.findOne({ _id: req.body.userId })
+    if (!user) throw new Error(`Could not locate user ${req.body.userId}`)
     playlist.sharedWith.push(user._id)
     user.playlists.push(playlist._id)
     await playlist.save()
@@ -153,6 +165,7 @@ exports.sharePlaylist = async (req, res) => {
 exports.updatePlaylist = async (req, res) => {
   try {
     const playlist = await Playlist.findOneAndUpdate({ _id: req.params.playlistId }, req.body, { new: true })
+    if (!playlist) throw new Error(`Could not locate playlist ${req.params.playlistId}`)
     res.status(200).json(playlist)
   } catch (error) {
     res.status(400).json({ message: error.message })
@@ -162,6 +175,7 @@ exports.updatePlaylist = async (req, res) => {
 exports.deletePlaylist = async (req, res) => {
   try {
     const owner = await User.findOne({ _id: req.params.userId })
+    if (!owner) throw new Error(`Could not locate user ${req.params.userId}`)
     const playlistIndex = owner.playlists.indexOf(req.params.playlistId)
     owner.playlists.splice(playlistIndex, 1)
     await owner.save()
@@ -175,7 +189,9 @@ exports.deletePlaylist = async (req, res) => {
 exports.showPlaylist = async (req, res) => {
   try {
     const user = await User.findOne({ _id: req.params.userId })
-    const playlist = await Playlist.findOne({ _id: req.params.searchedPlaylistId })
+    if (!user) throw new Error(`Could not locate user ${req.params.userId}`)
+    const playlist = await Playlist.findOne({ _id: req.params.foundPlaylistId })
+    if (!playlist) throw new Error(`Could not locate playlist ${req.params.foundPlaylistId}`)
     if (playlist.public === false) {
       if (`${playlist.user}` !== `${user._id}`){
         throw new Error('playlist is set to private')

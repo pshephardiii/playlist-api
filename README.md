@@ -30,19 +30,15 @@
 
 1. Make new directory for project and move into that directory
 
-2. Git clone repository into directory: ``` git clone *SSH-key* ```
+2. Git clone repository into directory: ``` git clone ``` *insert SSH-key here*
 
-3. Add .gitignore and .env files with following command: ``` touch .gitignore .env ```
+3. Add .env file with following command: ``` touch .env ```
 
 4. Add MONGO URI string with desired database name and a sha256 hash as SECRET in .env file
 
-5. In repository, run: ``` npm init -y ```
+5. To install dependencies, run the following in the repository: ``` npm i ```
 
-6. Install dependencies: ``` npm install bcrypt dotenv express jsonwebtoken mongoose ```
-
-7. Install dev dependencies: ``` npm install jest supertest morgan mongodb-memory-server nodemon --save-dev ```
-
-8. To start app in development mode, use command: ``` npm run dev ```
+6. To start app in development mode, use command: ``` npm run dev ```
 
 ---
 

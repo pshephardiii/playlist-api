@@ -261,3 +261,11 @@ Shows a specified song
 ## Model Attributions Diagram
 
 ![Model Attributions Diagram](https://i.imgur.com/6fkFn2s.png)
+
+---
+
+## Wireframe
+
+##### A quick (and ugly!) mockup of what a shown playlist may look like to the owner
+
+![Wireframe](https://i.imgur.com/jpYLpHv.png)

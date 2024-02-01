@@ -9,5 +9,6 @@ router.get('/albums/:album', songController.indexSongsByAlbumTitle)
 router.get('/artists/:artist/albums/:album', songController.indexSongsByArtistAndAlbum)
 router.get('/genre/:genre', songController.indexSongsByGenre)
 router.get('/:id', songController.showSong)
+// router.post('/:userId/:songId', userController.auth, userController.likeSong)
 
 module.exports = router

@@ -5,7 +5,7 @@ const songSchema = new mongoose.Schema ({
   artist: { type: String, required: true },
   album: { type: String, required: true },
   genre: { type: String, required: true },
-  playlists: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Playlist' }],
+  playlists: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Playlist' }]
 })
   
 const Song = mongoose.model('Song', songSchema)

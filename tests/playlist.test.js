@@ -153,7 +153,7 @@ describe('Test suite for the /playlists routes on our api', () => {
     const user1 = new User({ name: 'Paul', email: 'paul@paul.paul', password: 'paulpaulpaul' })
     const user2 = new User({ name: 'Paul2', email: 'paul@paul.paul2', password: 'paulpaulpaul2' })
     const playlist = new Playlist({ title: 'share me!', user: user1._id })
-    user1.playlists.push(playlist)
+    user1.playlists.push(playlist._id)
     const token = await user1.generateAuthToken()
     await user1.save()
     await user2.save()
@@ -163,6 +163,8 @@ describe('Test suite for the /playlists routes on our api', () => {
       .post(`/playlists/${playlist._id}/share`)
       .send({ userId: user2._id })
       .set('Authorization', `Bearer ${token}`)
+
+      console.log(user1)
 
     expect(response.statusCode).toBe(200)
     expect(response.body.playlist.sharedWith).toContain(`${user2._id}`)
@@ -278,6 +280,39 @@ describe('Test suite for the /playlists routes on our api', () => {
     expect(response.body.commenter.comments).toContain(commentId)
     expect(response.body.playlist.comments).toContain(commentId)
     expect(response.body.comment.content).toEqual('what a great playlist!')
+  })
+
+  test(`it should increase the playlist's likes by one and add the playlist ID to user's likedPlaylists array`, async () => {
+    const user = new User({ name: 'Paul', email: 'paul@funtimes.fun', password: 'paulpaulpaul' })
+    const playlist = new Playlist({ title: 'Bangers Only', public: true, likes: 0 })
+    const token = await user.generateAuthToken()
+    await user.save()
+    await playlist.save()
+
+    const response = await request(app)
+      .post(`/playlists/${user._id}/${playlist._id}`)
+      .set('Authorization', `Bearer ${token}`)
+
+    expect(response.statusCode).toBe(200)
+    expect(response.body.userLikedPlaylists).toContain(`${playlist._id}`)
+    expect(response.body.playlistLikes).toEqual(1)  
+  })
+
+  test(`it should decrease the playlist's likes by one and remove the playlist ID from user's likedPlaylists array`, async () => {
+    const user = new User({ name: 'Paul', email: 'paul@funtimes.fun', password: 'paulpaulpaul' })
+    const playlist = new Playlist({ title: 'Bangers Only', public: true, likes: 1 })
+    user.likedPlaylists.push(playlist._id)
+    const token = await user.generateAuthToken()
+    await user.save()
+    await playlist.save()
+
+    const response = await request(app)
+      .post(`/playlists/${user._id}/${playlist._id}`)
+      .set('Authorization', `Bearer ${token}`)
+
+    expect(response.statusCode).toBe(200)
+    expect(response.body.userLikedPlaylists).not.toContain(`${playlist._id}`)
+    expect(response.body.playlistLikes).toEqual(0)
   })
 
   test('it should get an unowned public playlist by id', async () => {

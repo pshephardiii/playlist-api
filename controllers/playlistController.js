@@ -162,6 +162,36 @@ exports.sharePlaylist = async (req, res) => {
   }
 }
 
+exports.likePlaylist = async (req, res) => {
+  try {
+    const user = await User.findOne({ _id: req.params.userId })
+    if(!user) throw new Error(`Could not locate user ${req.params.userId}`)
+    const playlist = await Playlist.findOne({ _id: req.params.foundPlaylistId })
+    if(!playlist) throw new Error(`Could not locate playlist ${req.params.foundPlaylistId}`)
+    if (playlist.public === false) {
+      if (`${playlist.user}` !== `${user._id}`) {
+        throw new Error('playlist is set to private')
+      }
+    }
+    if (user.likedPlaylists.includes(playlist._id)) {
+      const playlistIndex = user.likedPlaylists.indexOf(playlist._id)
+      user.likedPlaylists.splice(playlistIndex, 1)
+      playlist.likes = playlist.likes - 1
+    } else {
+    user.likedPlaylists.push(playlist._id)
+    playlist.likes = playlist.likes + 1
+    }
+    await user.save()
+    await playlist.save()
+    res.status(200).json({
+      userLikedPlaylists: user.likedPlaylists, 
+      playlistLikes: playlist.likes 
+    })
+  } catch (error) {
+    res.status(400).json({ message: error.message })
+  }
+}
+
 exports.updatePlaylist = async (req, res) => {
   try {
     const playlist = await Playlist.findOneAndUpdate({ _id: req.params.playlistId }, req.body, { new: true })

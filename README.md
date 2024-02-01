@@ -6,7 +6,7 @@
 
 + "As a user, I should be able to browse available songs and add them to a desired playlist."
 
-+ "As a user, I should land on a welcome page after logging in that has navigation links to saved playlists and index songs based on artist, album, year, or genre."
++ "As a user, I should land on a welcome page after logging in that has navigation links to saved playlists and index songs based on title, artist, album, or genre."
 
 + "As a user, I should be able to update playlists by removing or adding songs."
 
@@ -30,7 +30,7 @@
 
 1. Make new directory for project and move into that directory
 
-2. Git clone repository into directory: ``` git clone ``` *insert SSH-key here*
+2. Git clone repository into directory: ``` git clone ``` *insert SSH-key git clone link here*
 
 3. Add .env file with following command: ``` touch .env ```
 
@@ -44,7 +44,7 @@
 
 ## Additional Instructions:
 
-To run automatic tests: ``` npm run test ```
+To run automated tests: ``` npm run test ```
 
 To start app without dev mode: ``` npm run start ```
 
@@ -76,7 +76,7 @@ Shows a specified public playlist
 
 ##### /playlists
 
-Returns a new playlist (required title in req.body):
+Returns a new playlist (requires title in req.body):
 
 ```
 {
@@ -126,6 +126,12 @@ Posts a comment written by the user on the found playlist, adds comment ID to pl
 
 Shares a playlist with another user specified in the req.body
 
+##### /playlists/:userId/:foundPlaylistId
+
+Adds the playlist ID to the user's likedPlaylists array and adds one to the number of the playlist's likes
+
+If user attempts to like a playlist after having already liked it earlier, the route will have the opposite effect (the user will "unlike" the playlist)
+
 ---
 
 #### PUT and DELETE Routes
@@ -144,7 +150,7 @@ Deletes a playlist
 
 #### GET Routes
 
-###### /users
+##### /users
 
 Indexes all users
 
@@ -254,4 +260,4 @@ Shows a specified song
 
 ## Model Attributions Diagram
 
-![Model Attributions Diagram](https://i.imgur.com/dRAQSbY.png)
+![Model Attributions Diagram](https://i.imgur.com/6fkFn2s.png)

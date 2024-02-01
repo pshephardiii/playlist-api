@@ -8,7 +8,8 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   contacts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   playlists: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Playlist' }],
-  comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }]
+  comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
+  likedPlaylists: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Playlist' }]
 })
 
 userSchema.pre('save', async function(next) {

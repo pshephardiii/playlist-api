@@ -8,7 +8,7 @@ const playlistSchema = new mongoose.Schema ({
   comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
   sharedWith: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   cloned: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  likes: Number
+  likes: { type: Number, default: 0 }
 })
 
 const Playlist = mongoose.model('Playlist', playlistSchema)

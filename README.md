@@ -1,5 +1,11 @@
 # Playlist API 
 
+## Description:
+
+Foundation for a social media application centered around music playlists. Users can share, copy, and collaborate on custom playlists, comment and "like" playlists made by others, and add fellow users as contacts. Basic authorization and privacy functionality is included.
+
+NOTE: songs are not currently seeded in, so they would need to be added manually to your desired database.
+
 ## User Stories:
 
 + "As a user, I should be able to click on a navigation link to access a specific playlist."
